@@ -32,5 +32,7 @@ export async function getUserContents(userName: string): Promise<Content[]> {
 }
 
 export function addContent(content: Content) {
+  // Use unshift to add to the beginning of the array.
+  // This helps avoid issues with Hot Module Replacement in development.
   MOCK_CONTENTS.unshift(content);
 }
