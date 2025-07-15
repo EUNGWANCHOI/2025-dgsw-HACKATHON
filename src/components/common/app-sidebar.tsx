@@ -61,7 +61,6 @@ export default function AppSidebar() {
             <h2 className="text-lg font-semibold tracking-tighter">
               크리티컬
             </h2>
-            <p className="text-xs text-muted-foreground">AI 콘텐츠 피드백</p>
           </div>
           <SidebarTrigger className="ml-auto md:hidden">
             <PanelLeft />
