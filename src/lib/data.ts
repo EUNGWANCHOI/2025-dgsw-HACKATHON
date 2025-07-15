@@ -6,11 +6,6 @@ import { MOCK_CONTENTS, MOCK_USERS } from './mock-data';
 
 const USE_MOCK_DATA = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
-async function fetchContentsWithFallback(): Promise<Content[]> {
-    console.warn("Firestore connection failed. Falling back to mock data.");
-    return MOCK_CONTENTS;
-}
-
 export async function getContents(): Promise<Content[]> {
   if (USE_MOCK_DATA || !db.app) {
     console.log("Using mock data for contents");
