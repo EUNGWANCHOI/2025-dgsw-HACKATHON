@@ -6,6 +6,8 @@ import {
   User,
   PanelLeft,
   BotMessageSquare,
+  LayoutDashboard,
+  Rss,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,8 +29,13 @@ export default function AppSidebar() {
   const menuItems = [
     {
       href: '/',
+      label: '피드',
+      icon: Rss,
+    },
+    {
+      href: '/dashboard',
       label: '대시보드',
-      icon: Home,
+      icon: LayoutDashboard,
     },
     {
       href: '/upload',
@@ -51,7 +58,7 @@ export default function AppSidebar() {
           </Button>
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold tracking-tighter">
-              Critical
+              크리티컬
             </h2>
             <p className="text-xs text-muted-foreground">AI 콘텐츠 피드백</p>
           </div>

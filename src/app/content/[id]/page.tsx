@@ -23,6 +23,7 @@ const categoryIcons = {
   '스크립트': <FileText className="h-4 w-4 text-muted-foreground" />,
   '팟캐스트': <Mic className="h-4 w-4 text-muted-foreground" />,
   '아티클': <FileText className="h-4 w-4 text-muted-foreground" />,
+  '채널 기획': <FileText className="h-4 w-4 text-muted-foreground" />,
 };
 
 export default function ContentPage({ params }: { params: { id: string } }) {
@@ -38,7 +39,7 @@ export default function ContentPage({ params }: { params: { id: string } }) {
             <Button asChild variant="ghost" className="mb-4">
                 <Link href="/">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    대시보드로 돌아가기
+                    피드로 돌아가기
                 </Link>
             </Button>
 
