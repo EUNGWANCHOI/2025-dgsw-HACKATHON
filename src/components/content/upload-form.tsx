@@ -271,7 +271,7 @@ export default function UploadForm() {
                   </>
                 )}
               </Button>
-              <Button type="button" onClick={form.handleSubmit(onPublish)} disabled={isPublishing || isAnalyzing}>
+              <Button type="button" onClick={form.handleSubmit(onPublish)} disabled={isPublishing}>
                  {isPublishing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -121,3 +121,7 @@ export async function getUserContents(userName: string): Promise<Content[]> {
     await new Promise(resolve => setTimeout(resolve, 500));
     return MOCK_CONTENTS.filter(c => c.author.name === userName);
 }
+
+export function addContent(content: Content) {
+  MOCK_CONTENTS.unshift(content);
+}
