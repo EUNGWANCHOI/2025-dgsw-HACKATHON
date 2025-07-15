@@ -47,7 +47,7 @@ export default function LoginPage() {
       </div>
       <div className="hidden bg-primary lg:flex items-center justify-center p-8">
         <Image
-          src="/logo.svg"
+          src="/logo.png"
           alt="Critical Logo"
           width="400"
           height="100"
