@@ -18,7 +18,7 @@ import { getContentById } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AIFeedback from '@/components/content/ai-feedback';
-import CommunityFeedback from '@/components/content/community-feedback';
+import CommunityFeedbackForm from '@/components/content/community-feedback-form';
 import { Separator } from '@/components/ui/separator';
 import type { ContentCategory } from '@/lib/types';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
@@ -126,7 +126,7 @@ export default async function ContentPage({ params }: { params: { id: string } }
                             </div>
                             <h2 className="text-2xl font-bold tracking-tight">커뮤니티 피드백</h2>
                         </div>
-                        <CommunityFeedback comments={content.communityFeedback || []} />
+                        <CommunityFeedbackForm contentId={content.id} comments={content.communityFeedback || []} />
                     </div>
                 </aside>
             </main>

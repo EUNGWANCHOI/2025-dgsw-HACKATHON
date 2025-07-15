@@ -16,7 +16,7 @@ export interface AIFeedback {
 }
 
 export interface CommunityComment {
-  id: string;
+  id?: string;
   author: {
     name: string;
     avatarUrl: string;

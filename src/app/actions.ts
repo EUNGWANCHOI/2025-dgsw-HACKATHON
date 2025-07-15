@@ -4,9 +4,10 @@
 import { z } from 'zod';
 import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-improvements';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
-import type { AIFeedback, Content, User } from '@/lib/types';
-import { addContent } from '@/lib/data';
+import type { AIFeedback, Content, User, CommunityComment } from '@/lib/types';
+import { addContent, addComment } from '@/lib/data';
 import { auth, db } from '@/lib/firebase';
+import { revalidatePath } from 'next/cache';
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
   (url) => {
@@ -91,7 +92,7 @@ export async function publishContent(
   try {
     const validatedData = formSchema.parse(values);
     
-    const newContent: Omit<Content, 'id' | 'createdAt'> = {
+    const newContent: Omit<Content, 'id' | 'createdAt' | 'communityFeedback'> & { communityFeedback: CommunityComment[] } = {
       title: validatedData.title,
       description: validatedData.description,
       category: validatedData.category,
@@ -107,6 +108,8 @@ export async function publishContent(
 
     const newContentId = await addContent(newContent);
     
+    revalidatePath('/feed');
+    revalidatePath('/dashboard');
     return { success: true, contentId: newContentId };
 
   } catch (error) {
@@ -116,4 +119,50 @@ export async function publishContent(
     }
     return { success: false, error: '서버 오류로 인해 콘텐츠 게시에 실패했습니다.' };
   }
+}
+
+
+const commentSchema = z.object({
+  comment: z.string().min(1, '댓글을 입력해주세요.'),
+});
+
+export async function addCommunityComment(
+  contentId: string,
+  user: User,
+  formData: FormData,
+): Promise<{ success: boolean; error?: string; }> {
+    if (!db.app) {
+      console.warn("Firestore is not initialized. Skipping comment.");
+      return { success: true };
+    }
+    if (!user) {
+        return { success: false, error: '로그인이 필요합니다.' };
+    }
+    
+    const validatedFields = commentSchema.safeParse({
+        comment: formData.get('comment'),
+    });
+
+    if (!validatedFields.success) {
+        return {
+            success: false,
+            error: validatedFields.error.flatten().fieldErrors.comment?.join(', '),
+        };
+    }
+
+    try {
+        const newComment: Omit<CommunityComment, 'id' | 'createdAt'> = {
+            author: user,
+            comment: validatedFields.data.comment,
+            likes: 0,
+            dislikes: 0,
+            isAccepted: false,
+        };
+        await addComment(contentId, newComment);
+        revalidatePath(`/content/${contentId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        return { success: false, error: '서버 오류로 인해 댓글 추가에 실패했습니다.' };
+    }
 }
