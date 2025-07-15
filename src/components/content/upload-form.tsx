@@ -88,7 +88,7 @@ export default function UploadForm() {
     setIsAnalyzing(true);
     setAiFeedback(null);
 
-    if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY && !process.env.OPENAI_API_KEY && !process.env.GOOGLE_API_KEY) {
+    if (!process.env.NEXT_PUBLIC_GOOGLE_API_KEY && !process.env.GOOGLE_API_KEY && !process.env.OPENAI_API_KEY) {
         toast({
             variant: 'destructive',
             title: 'AI 분석 불가',

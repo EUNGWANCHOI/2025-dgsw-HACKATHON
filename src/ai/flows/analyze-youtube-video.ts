@@ -49,7 +49,6 @@ const youtubeTranscriptTool = ai.defineTool(
 const prompt = ai.definePrompt({
   name: 'analyzeYoutubeVideoPrompt',
   tools: [youtubeTranscriptTool],
-  model: 'openai/gpt-4-turbo',
   input: {schema: z.object({
       videoUrl: z.string().url(),
       title: z.string(),
