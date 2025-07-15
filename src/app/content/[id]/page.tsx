@@ -18,6 +18,7 @@ import AIFeedback from '@/components/content/ai-feedback';
 import CommunityFeedback from '@/components/content/community-feedback';
 import { Separator } from '@/components/ui/separator';
 import type { ContentCategory } from '@/lib/types';
+import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 
 const categoryIcons: Record<ContentCategory, React.ReactNode> = {
   '영상': <Video className="h-4 w-4 text-muted-foreground" />,
@@ -99,7 +100,17 @@ export default async function ContentPage({ params }: { params: { id: string } }
                             </div>
                             <h2 className="text-2xl font-bold tracking-tight">AI 피드백</h2>
                         </div>
-                        <AIFeedback feedback={content.aiFeedback} />
+                        {content.aiFeedback ? (
+                            <AIFeedback feedback={content.aiFeedback} />
+                        ) : (
+                            <Card className="flex flex-col items-center justify-center p-8 text-center">
+                                <Wand2 className="h-12 w-12 text-muted-foreground/50" />
+                                <CardTitle className="mt-4 text-lg">AI 피드백이 없습니다</CardTitle>
+                                <CardDescription className="mt-1">
+                                이 콘텐츠는 AI 피드백 없이 게시되었습니다.
+                                </CardDescription>
+                            </Card>
+                        )}
                     </div>
                     <div className="space-y-6">
                         <div className="flex items-center gap-3">

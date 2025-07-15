@@ -3,8 +3,8 @@
 import { z } from 'zod';
 import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-improvements';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
-import type { AIFeedback } from '@/lib/types';
-import { getContentById, getContents, getCurrentUser } from '@/lib/data';
+import type { AIFeedback, Content } from '@/lib/types';
+import { getContents, getCurrentUser } from '@/lib/data';
 
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
@@ -76,7 +76,7 @@ export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise
 
 export async function publishContent(
   values: z.infer<typeof formSchema>,
-  aiFeedback: AIFeedback
+  aiFeedback: AIFeedback | null
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
   try {
     const validatedData = formSchema.parse(values);
@@ -84,7 +84,7 @@ export async function publishContent(
     
     const newContentId = (contents.length + 1).toString();
     
-    const newContent = {
+    const newContent: Content = {
       id: newContentId,
       title: validatedData.title,
       description: validatedData.description,
@@ -93,9 +93,12 @@ export async function publishContent(
       author: user,
       thumbnailUrl: 'https://placehold.co/600x400.png',
       createdAt: '방금 전',
-      aiFeedback: aiFeedback,
       communityFeedback: [],
     };
+
+    if (aiFeedback) {
+        newContent.aiFeedback = aiFeedback;
+    }
 
     // This is where you would push to a real database.
     // For now, we can't add to the MOCK_CONTENTS array as it is not exported.
