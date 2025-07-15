@@ -11,7 +11,7 @@ const getMockContents = () => Promise.resolve(JSON.parse(JSON.stringify(MOCK_CON
 
 export async function getContents(): Promise<Content[]> {
   if (USE_MOCK_DATA) {
-    console.log("Using mock data: Firebase is not configured.");
+    console.warn("Using mock data: Firebase is not configured.");
     return getMockContents();
   }
 
@@ -21,7 +21,7 @@ export async function getContents(): Promise<Content[]> {
   return getDocs(q)
     .then(snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content)))
     .catch(error => {
-      console.error("Error fetching contents from Firestore, falling back to mock data:", error.message);
+      console.warn("Error fetching contents from Firestore, falling back to mock data:", error.message);
       return getMockContents();
     });
 }
@@ -30,7 +30,7 @@ export async function getContentById(id: string): Promise<Content | undefined> {
   const getMockContent = () => Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.find(c => c.id === id))));
 
   if (USE_MOCK_DATA) {
-    console.log(`Using mock data: Firebase is not configured (content ID: ${id}).`);
+    console.warn(`Using mock data: Firebase is not configured (content ID: ${id}).`);
     return getMockContent();
   }
 
@@ -44,6 +44,7 @@ export async function getContentById(id: string): Promise<Content | undefined> {
       
       const contentData = { id: contentSnap.id, ...contentSnap.data() } as Content;
       
+      // Community feedback is now a subcollection
       const feedbackCol = collection(db, `contents/${id}/communityFeedback`);
       const feedbackQuery = query(feedbackCol, orderBy('createdAt', 'desc'));
       const feedbackSnapshot = await getDocs(feedbackQuery);
@@ -52,7 +53,7 @@ export async function getContentById(id: string): Promise<Content | undefined> {
       return contentData;
     })
     .catch(error => {
-      console.error(`Error fetching content by ID ${id} from Firestore, falling back to mock data:`, error.message);
+      console.warn(`Error fetching content by ID ${id} from Firestore, falling back to mock data:`, error.message);
       return getMockContent();
     });
 }
@@ -61,7 +62,7 @@ export async function getUserContents(userName: string): Promise<Content[]> {
     const getMockUserContents = () => Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.filter(c => c.author.name === userName))));
     
     if (USE_MOCK_DATA) {
-        console.log(`Using mock data: Firebase is not configured (user: ${userName}).`);
+        console.warn(`Using mock data: Firebase is not configured (user: ${userName}).`);
         return getMockUserContents();
     }
     
@@ -71,14 +72,14 @@ export async function getUserContents(userName: string): Promise<Content[]> {
     return getDocs(q)
         .then(snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content)))
         .catch(error => {
-            console.error(`Error fetching user contents for ${userName} from Firestore, falling back to mock data:`, error.message);
+            console.warn(`Error fetching user contents for ${userName} from Firestore, falling back to mock data:`, error.message);
             return getMockUserContents();
         });
 }
 
 export async function addContent(content: Omit<Content, 'id' | 'createdAt'>): Promise<string> {
   if (USE_MOCK_DATA) {
-    console.log("Adding mock content because Firebase is not configured.");
+    console.warn("Adding mock content because Firebase is not configured.");
     const newContent: Content = {
         ...content,
         id: `mock-${Date.now()}`,
@@ -89,8 +90,10 @@ export async function addContent(content: Omit<Content, 'id' | 'createdAt'>): Pr
     return newContent.id;
   }
   try {
+    // We don't store communityFeedback in the main content document anymore
+    const { communityFeedback, ...contentData } = content;
     const docRef = await addDoc(collection(db, 'contents'), {
-      ...content,
+      ...contentData,
       createdAt: serverTimestamp(),
     });
     return docRef.id;
@@ -102,7 +105,7 @@ export async function addContent(content: Omit<Content, 'id' | 'createdAt'>): Pr
 
 export async function addComment(contentId: string, comment: Omit<CommunityComment, 'id' | 'createdAt'>): Promise<string> {
   if (USE_MOCK_DATA) {
-    console.log(`Adding mock comment to content ID: ${contentId} because Firebase is not configured.`);
+    console.warn(`Adding mock comment to content ID: ${contentId} because Firebase is not configured.`);
     const content = MOCK_CONTENTS.find(c => c.id === contentId);
     if (content) {
       const newComment: CommunityComment = {
