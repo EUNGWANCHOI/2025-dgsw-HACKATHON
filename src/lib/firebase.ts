@@ -15,7 +15,7 @@ const firebaseConfig = {
 };
 
 // 모든 Firebase 관련 환경 변수가 설정되었는지 확인
-const IS_FIREBASE_CONFIGURED = 
+const ARE_ALL_ENV_VARS_SET = 
     !!firebaseConfig.apiKey &&
     !!firebaseConfig.authDomain &&
     !!firebaseConfig.projectId &&
@@ -23,34 +23,33 @@ const IS_FIREBASE_CONFIGURED =
     !!firebaseConfig.messagingSenderId &&
     !!firebaseConfig.appId;
 
-
 let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
+let IS_FIREBASE_CONFIGURED: boolean;
 
-
-if (IS_FIREBASE_CONFIGURED) {
-    try {
-      app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-      auth = getAuth(app);
-      db = getFirestore(app);
-      storage = getStorage(app);
-    } catch (e) {
-      console.error('Firebase initialization error', e);
-      // 초기화 실패 시, mock 객체를 할당합니다.
-      app = {} as FirebaseApp;
-      auth = { onAuthStateChanged: () => () => {} } as unknown as Auth;
-      db = {} as Firestore;
-      storage = {} as FirebaseStorage;
+try {
+  if (ARE_ALL_ENV_VARS_SET) {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+    IS_FIREBASE_CONFIGURED = true;
+  } else {
+    throw new Error("Firebase environment variables are not set.");
+  }
+} catch (e) {
+    if (e instanceof Error && e.message.includes("Firebase environment variables are not set")) {
+        console.warn("Firebase environment variables are not set. Firebase is not initialized. Using mock data where applicable.");
+    } else {
+        console.error('Firebase initialization error, falling back to mock implementation:', e);
     }
-} else {
-    console.warn("Firebase environment variables are not set. Firebase is not initialized. Using mock data where applicable.");
-    // Firebase가 설정되지 않았을 때 mock 객체 할당
-    app = {} as FirebaseApp; // 빈 객체로 초기화
-    auth = { onAuthStateChanged: () => () => {} } as unknown as Auth; // onAuthStateChanged가 있는 mock auth
-    db = {} as unknown as Firestore; // app 속성으로 초기화 여부 판단
+    app = {} as FirebaseApp;
+    auth = { onAuthStateChanged: () => () => {} } as unknown as Auth;
+    db = {} as Firestore;
     storage = {} as FirebaseStorage;
+    IS_FIRE_CONFIGURED = false;
 }
 
 
