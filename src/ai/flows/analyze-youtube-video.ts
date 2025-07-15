@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {getTranscript} from 'youtube-transcript';
+import { YoutubeTranscript } from 'youtube-transcript';
 
 const AnalyzeYouTubeVideoInputSchema = z.object({
   videoUrl: z.string().url().describe('The URL of the YouTube video to analyze.'),
@@ -36,7 +36,7 @@ const youtubeTranscriptTool = ai.defineTool(
   },
   async (input) => {
     try {
-      const transcript = await getTranscript(input.url);
+      const transcript = await YoutubeTranscript.fetchTranscript(input.url);
       return transcript.map(t => t.text).join(' ');
     } catch (error) {
       console.error('Error fetching transcript:', error);
@@ -78,7 +78,7 @@ const analyzeYouTubeVideoFlow = ai.defineFlow(
     outputSchema: AnalyzeYouTubeVideoOutputSchema,
   },
   async (input) => {
-    const transcript = await getTranscript(input.videoUrl).then(t => t.map(i => i.text).join(' ')).catch(() => '스크립트를 가져올 수 없습니다.');
+    const transcript = await YoutubeTranscript.fetchTranscript(input.videoUrl).then(t => t.map(i => i.text).join(' ')).catch(() => '스크립트를 가져올 수 없습니다.');
 
     const {output} = await prompt({
         title: input.title,
