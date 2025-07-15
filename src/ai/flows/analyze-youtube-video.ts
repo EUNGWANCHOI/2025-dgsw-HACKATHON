@@ -48,15 +48,18 @@ const youtubeTranscriptTool = ai.defineTool(
 
 const prompt = ai.definePrompt({
   name: 'analyzeYoutubeVideoPrompt',
+  tools: [youtubeTranscriptTool],
   input: {schema: z.object({
+      videoUrl: z.string().url(),
       title: z.string(),
       description: z.string(),
-      transcript: z.string(),
   })},
   output: {schema: AnalyzeYouTubeVideoOutputSchema},
   prompt: `You are an AI content analysis tool designed to provide feedback to content creators.
 
-You will analyze the video transcript provided based on the following criteria:
+First, get the transcript for the youtube video at the url {{videoUrl}} by calling the getYoutubeTranscript tool.
+
+Then, you will analyze the video transcript provided based on the following criteria:
 - Delivery: How well the content is delivered (e.g., clarity, pacing, engagement).
 - Topic Relevance: How relevant the topic is to the target audience.
 - Audience Friendliness: How friendly the content is to the target audience (e.g., accessibility, inclusivity).
@@ -66,7 +69,6 @@ Also provide an overall score between 0 and 1, where 1 is the best possible scor
 
 Content Title: {{{title}}}
 Content Description: {{{description}}}
-Video Transcript: {{{transcript}}}
 
 Please provide all feedback in Korean.
 `,
@@ -79,13 +81,7 @@ const analyzeYouTubeVideoFlow = ai.defineFlow(
     outputSchema: AnalyzeYouTubeVideoOutputSchema,
   },
   async (input) => {
-    const transcript = await youtubeTranscriptTool({url: input.videoUrl});
-
-    const {output} = await prompt({
-        title: input.title,
-        description: input.description,
-        transcript: transcript,
-    });
+    const {output} = await prompt(input);
     return output!;
   }
 );
