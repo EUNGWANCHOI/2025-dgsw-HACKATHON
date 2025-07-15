@@ -42,6 +42,7 @@ export async function getContentById(id: string): Promise<Content | undefined> {
       
       return contentData;
     } else {
+      // Firestore에 데이터가 없을 경우에도 목 데이터에서 찾아봅니다.
       console.warn(`Content with ID ${id} not found in Firestore. Falling back to mock data.`);
       return MOCK_CONTENTS.find(c => c.id === id);
     }
