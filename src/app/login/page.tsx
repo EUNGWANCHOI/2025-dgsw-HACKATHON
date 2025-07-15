@@ -49,7 +49,7 @@ export default function LoginPage() {
             </Button>
             <div className="mt-4 text-center text-sm">
                 계정이 없으신가요?
-                <Button asChild variant="link" className="text-accent-foreground/80 hover:text-accent-foreground">
+                <Button asChild variant="link" className="text-primary hover:text-primary/90">
                     <Link href="#">
                         회원가입
                     </Link>
