@@ -93,13 +93,15 @@ export async function publishContent(
   if (!IS_FIREBASE_CONFIGURED) {
       console.warn("Firestore is not initialized. Publishing to mock data.");
       const newContentId = await addContent({
-          ...values,
+          title: values.title,
+          description: values.description,
+          category: values.category,
           author: user,
           content: values.content || `YouTube 영상: ${values.youtubeUrl}`,
           thumbnailUrl: values.thumbnailUrl || 'https://placehold.co/600x400.png',
           aiFeedback: aiFeedback || undefined,
           communityFeedback: [],
-      } as any);
+      });
       revalidatePath('/feed');
       revalidatePath('/dashboard');
       revalidatePath(`/content/${newContentId}`);
