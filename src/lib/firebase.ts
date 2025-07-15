@@ -19,19 +19,24 @@ let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
 
+const IS_FIREBASE_CONFIGURED = Object.values(firebaseConfig).every(Boolean);
 
-if (Object.values(firebaseConfig).every(Boolean)) {
+if (IS_FIREBASE_CONFIGURED) {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);
 } else {
-    console.warn("Firebase environment variables are not set. Firebase is not initialized.");
+    console.warn("Firebase environment variables are not set. Firebase is not initialized. Using mock data where applicable.");
     app = {} as FirebaseApp;
-    auth = {} as Auth;
-    db = {} as Firestore;
+    auth = {
+        onAuthStateChanged: () => () => {}, // Mock function
+    } as unknown as Auth;
+    db = {
+        app: null // Mock property
+    } as unknown as Firestore;
     storage = {} as FirebaseStorage;
 }
 
 
-export { app, auth, db, storage };
+export { app, auth, db, storage, IS_FIREBASE_CONFIGURED };
