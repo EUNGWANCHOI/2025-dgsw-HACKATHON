@@ -37,6 +37,25 @@ function SubmitButton() {
     )
 }
 
+// Helper function to safely convert various date formats to a Date object
+const toSafeDate = (dateValue: any): Date | null => {
+  if (!dateValue) return null;
+  // Firestore Timestamp
+  if (typeof dateValue.toDate === 'function') {
+    return dateValue.toDate();
+  }
+  // JSON serialized Firestore Timestamp { seconds, nanoseconds }
+  if (typeof dateValue === 'object' && dateValue.seconds) {
+    return new Date(dateValue.seconds * 1000);
+  }
+  // Standard Date object or ISO string
+  const date = new Date(dateValue);
+  if (!isNaN(date.getTime())) {
+      return date;
+  }
+  return null;
+}
+
 export default function CommunityFeedbackForm({ contentId, comments }: CommunityFeedbackFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -74,9 +93,7 @@ export default function CommunityFeedbackForm({ contentId, comments }: Community
         ) : (
           <div className="space-y-4">
             {comments.map((comment) => {
-              const createdAtDate = comment.createdAt && typeof comment.createdAt.toDate === 'function' 
-                ? comment.createdAt.toDate()
-                : comment.createdAt ? new Date(comment.createdAt as any) : null;
+              const createdAtDate = toSafeDate(comment.createdAt);
               
               return (
               <div key={comment.id} className="flex gap-3">

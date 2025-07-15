@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { FileText, MessageSquare, Video, Mic, ThumbsUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import type { Timestamp } from 'firebase/firestore';
 
 import type { Content } from '@/lib/types';
 import {
@@ -28,11 +29,28 @@ const categoryIcons = {
   '채널 기획': <FileText className="h-4 w-4" />,
 };
 
+// Helper function to safely convert various date formats to a Date object
+const toSafeDate = (dateValue: any): Date | null => {
+  if (!dateValue) return null;
+  // Firestore Timestamp
+  if (typeof dateValue.toDate === 'function') {
+    return dateValue.toDate();
+  }
+  // JSON serialized Firestore Timestamp { seconds, nanoseconds }
+  if (typeof dateValue === 'object' && dateValue.seconds) {
+    return new Date(dateValue.seconds * 1000);
+  }
+  // Standard Date object or ISO string
+  const date = new Date(dateValue);
+  if (!isNaN(date.getTime())) {
+      return date;
+  }
+  return null;
+}
+
 export default function ContentCard({ content }: ContentCardProps) {
     const totalLikes = content.communityFeedback?.reduce((acc, curr) => acc + curr.likes, 0) || 0;
-    const createdAtDate = content.createdAt && typeof content.createdAt.toDate === 'function' 
-        ? content.createdAt.toDate()
-        : content.createdAt ? new Date(content.createdAt as any) : null;
+    const createdAtDate = toSafeDate(content.createdAt);
 
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
