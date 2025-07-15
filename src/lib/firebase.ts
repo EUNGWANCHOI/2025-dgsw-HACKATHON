@@ -49,7 +49,7 @@ try {
     auth = { onAuthStateChanged: () => () => {} } as unknown as Auth;
     db = {} as Firestore;
     storage = {} as FirebaseStorage;
-    IS_FIRE_CONFIGURED = false;
+    IS_FIREBASE_CONFIGURED = false;
 }
 
 
