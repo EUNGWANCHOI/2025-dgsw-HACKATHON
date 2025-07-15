@@ -27,17 +27,17 @@ export default function AppSidebar() {
   const menuItems = [
     {
       href: '/',
-      label: 'Dashboard',
+      label: '대시보드',
       icon: Home,
     },
     {
       href: '/upload',
-      label: 'Upload Content',
+      label: '콘텐츠 업로드',
       icon: Upload,
     },
     {
       href: '/profile',
-      label: 'Profile',
+      label: '프로필',
       icon: User,
     },
   ];
@@ -53,7 +53,7 @@ export default function AppSidebar() {
             <h2 className="text-lg font-semibold tracking-tighter">
               Critical
             </h2>
-            <p className="text-xs text-muted-foreground">AI Content Feedback</p>
+            <p className="text-xs text-muted-foreground">AI 콘텐츠 피드백</p>
           </div>
           <SidebarTrigger className="ml-auto md:hidden">
             <PanelLeft />

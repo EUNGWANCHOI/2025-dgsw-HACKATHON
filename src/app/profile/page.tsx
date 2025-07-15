@@ -8,7 +8,7 @@ import { SidebarInset } from '@/components/ui/sidebar';
 import { mockContents, mockUser } from '@/lib/mock-data';
 
 export default function ProfilePage() {
-    const userContent = mockContents.filter(c => c.author.name === mockUser.name || c.author.name === "Jane Smith"); // Demo purpose
+    const userContent = mockContents.filter(c => c.author.name === mockUser.name || c.author.name === "김민준");
 
   return (
     <div className="flex min-h-screen">
@@ -28,18 +28,18 @@ export default function ProfilePage() {
                         </Avatar>
                         <div className="flex-1">
                             <h1 className="text-3xl font-bold tracking-tight">{mockUser.name}</h1>
-                            <p className="text-muted-foreground">Content Creator</p>
+                            <p className="text-muted-foreground">콘텐츠 크리에이터</p>
                             <p className="mt-2 text-sm max-w-prose">
-                                Passionate about storytelling and visual arts. Here to learn and grow with the community.
+                                스토리텔링과 시각 예술에 열정을 가지고 있습니다. 커뮤니티와 함께 배우고 성장하기 위해 왔습니다.
                             </p>
                         </div>
-                        <Button>Edit Profile</Button>
+                        <Button>프로필 수정</Button>
                     </div>
                 </CardContent>
             </Card>
             
             <div className="space-y-6">
-                <h2 className="text-2xl font-bold tracking-tight">My Content</h2>
+                <h2 className="text-2xl font-bold tracking-tight">내 콘텐츠</h2>
                 {userContent.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {userContent.map((content) => (
@@ -47,7 +47,7 @@ export default function ProfilePage() {
                     ))}
                     </div>
                 ) : (
-                    <p>No content uploaded yet.</p>
+                    <p>아직 업로드된 콘텐츠가 없습니다.</p>
                 )}
             </div>
 

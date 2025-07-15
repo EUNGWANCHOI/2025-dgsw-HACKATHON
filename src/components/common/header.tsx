@@ -20,21 +20,21 @@ export default function Header() {
         <SidebarTrigger className="md:hidden">
           <PanelLeft />
         </SidebarTrigger>
-        <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight">대시보드</h1>
       </div>
 
       <div className="relative ml-auto flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search content..."
+          placeholder="콘텐츠 검색..."
           className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px]"
         />
       </div>
 
       <Button variant="ghost" size="icon" className="rounded-full">
         <Bell className="h-5 w-5" />
-        <span className="sr-only">Toggle notifications</span>
+        <span className="sr-only">알림 토글</span>
       </Button>
 
       <DropdownMenu>
@@ -49,16 +49,16 @@ export default function Header() {
                   .join('')}
               </AvatarFallback>
             </Avatar>
-            <span className="sr-only">Toggle user menu</span>
+            <span className="sr-only">사용자 메뉴 토글</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>내 계정</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Support</DropdownMenuItem>
+          <DropdownMenuItem>설정</DropdownMenuItem>
+          <DropdownMenuItem>지원</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem>로그아웃</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

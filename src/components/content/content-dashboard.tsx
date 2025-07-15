@@ -1,4 +1,4 @@
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Upload } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,11 @@ export default function ContentDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Your Content</h2>
+        <h2 className="text-2xl font-bold tracking-tight">모든 콘텐츠</h2>
         <Button asChild>
           <Link href="/upload">
             <PlusCircle className="mr-2 h-4 w-4" />
-            Upload New Content
+            새 콘텐츠 업로드
           </Link>
         </Button>
       </div>
@@ -27,15 +27,15 @@ export default function ContentDashboard() {
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/50 p-12 text-center">
           <h3 className="text-xl font-semibold tracking-tight">
-            No content yet
+            아직 콘텐츠가 없습니다
           </h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Get started by uploading your first piece of content for feedback.
+            피드백을 위해 첫 번째 콘텐츠를 업로드하여 시작하세요.
           </p>
           <Button asChild className="mt-4">
             <Link href="/upload">
               <Upload className="mr-2 h-4 w-4" />
-              Upload Content
+              콘텐츠 업로드
             </Link>
           </Button>
         </div>

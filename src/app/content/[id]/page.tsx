@@ -19,10 +19,10 @@ import CommunityFeedback from '@/components/content/community-feedback';
 import { Separator } from '@/components/ui/separator';
 
 const categoryIcons = {
-  Video: <Video className="h-4 w-4 text-muted-foreground" />,
-  Script: <FileText className="h-4 w-4 text-muted-foreground" />,
-  Podcast: <Mic className="h-4 w-4 text-muted-foreground" />,
-  Article: <FileText className="h-4 w-4 text-muted-foreground" />,
+  '영상': <Video className="h-4 w-4 text-muted-foreground" />,
+  '스크립트': <FileText className="h-4 w-4 text-muted-foreground" />,
+  '팟캐스트': <Mic className="h-4 w-4 text-muted-foreground" />,
+  '아티클': <FileText className="h-4 w-4 text-muted-foreground" />,
 };
 
 export default function ContentPage({ params }: { params: { id: string } }) {
@@ -38,7 +38,7 @@ export default function ContentPage({ params }: { params: { id: string } }) {
             <Button asChild variant="ghost" className="mb-4">
                 <Link href="/">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Dashboard
+                    대시보드로 돌아가기
                 </Link>
             </Button>
 
@@ -79,9 +79,9 @@ export default function ContentPage({ params }: { params: { id: string } }) {
                         <Separator/>
                         
                         <div className="prose prose-stone max-w-none text-card-foreground/90">
-                            <p className='font-semibold'>Description:</p>
+                            <p className='font-semibold'>설명:</p>
                             <p>{content.description}</p>
-                            <p className='font-semibold mt-4'>Content/Script:</p>
+                            <p className='font-semibold mt-4'>콘텐츠/스크립트:</p>
                             <blockquote className='text-sm'>
                                 {content.content}
                             </blockquote>
@@ -95,7 +95,7 @@ export default function ContentPage({ params }: { params: { id: string } }) {
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                 <Wand2 className="h-6 w-6" />
                             </div>
-                            <h2 className="text-2xl font-bold tracking-tight">AI Feedback</h2>
+                            <h2 className="text-2xl font-bold tracking-tight">AI 피드백</h2>
                         </div>
                         <AIFeedback feedback={content.aiFeedback} />
                     </div>
@@ -104,7 +104,7 @@ export default function ContentPage({ params }: { params: { id: string } }) {
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20 text-accent-foreground">
                                 <Users className="h-6 w-6" />
                             </div>
-                            <h2 className="text-2xl font-bold tracking-tight">Community Feedback</h2>
+                            <h2 className="text-2xl font-bold tracking-tight">커뮤니티 피드백</h2>
                         </div>
                         <CommunityFeedback comments={content.communityFeedback} />
                     </div>
