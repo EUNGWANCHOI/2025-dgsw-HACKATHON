@@ -1,0 +1,45 @@
+import { PlusCircle } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import ContentCard from './content-card';
+import { mockContents } from '@/lib/mock-data';
+
+export default function ContentDashboard() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Your Content</h2>
+        <Button asChild>
+          <Link href="/upload">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Upload New Content
+          </Link>
+        </Button>
+      </div>
+
+      {mockContents.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {mockContents.map((content) => (
+            <ContentCard key={content.id} content={content} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/50 p-12 text-center">
+          <h3 className="text-xl font-semibold tracking-tight">
+            No content yet
+          </h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Get started by uploading your first piece of content for feedback.
+          </p>
+          <Button asChild className="mt-4">
+            <Link href="/upload">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Content
+            </Link>
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}

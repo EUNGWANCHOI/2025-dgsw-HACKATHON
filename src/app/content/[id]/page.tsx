@@ -1,0 +1,116 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import {
+  ArrowLeft,
+  FileText,
+  MessageSquare,
+  Mic,
+  Users,
+  Video,
+  Wand2,
+} from 'lucide-react';
+import { notFound } from 'next/navigation';
+
+import { mockContents } from '@/lib/mock-data';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import AIFeedback from '@/components/content/ai-feedback';
+import CommunityFeedback from '@/components/content/community-feedback';
+import { Separator } from '@/components/ui/separator';
+
+const categoryIcons = {
+  Video: <Video className="h-4 w-4 text-muted-foreground" />,
+  Script: <FileText className="h-4 w-4 text-muted-foreground" />,
+  Podcast: <Mic className="h-4 w-4 text-muted-foreground" />,
+  Article: <FileText className="h-4 w-4 text-muted-foreground" />,
+};
+
+export default function ContentPage({ params }: { params: { id: string } }) {
+  const content = mockContents.find((c) => c.id === params.id);
+
+  if (!content) {
+    notFound();
+  }
+
+  return (
+    <div className="bg-muted/30">
+        <div className="container mx-auto max-w-6xl py-8">
+            <Button asChild variant="ghost" className="mb-4">
+                <Link href="/">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                </Link>
+            </Button>
+
+            <main className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <div className="space-y-6 lg:col-span-2">
+                    <div className="relative aspect-video overflow-hidden rounded-lg border bg-white shadow-sm">
+                        <Image
+                            src={content.thumbnailUrl}
+                            alt={content.title}
+                            fill
+                            className="object-cover"
+                            data-ai-hint="creative concept"
+                        />
+                    </div>
+                    <div className="space-y-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+                        <div className="flex items-start justify-between gap-4">
+                           <div>
+                             <h1 className="font-headline text-3xl font-bold tracking-tight">
+                                {content.title}
+                             </h1>
+                             <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2">
+                                    {categoryIcons[content.category]}
+                                    <span>{content.category}</span>
+                                </div>
+                                <span>•</span>
+                                <div className="flex items-center gap-2">
+                                    <Avatar className="h-6 w-6">
+                                        <AvatarImage src={content.author.avatarUrl} />
+                                        <AvatarFallback>{content.author.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <span>{content.author.name}</span>
+                                </div>
+                             </div>
+                           </div>
+                        </div>
+
+                        <Separator/>
+                        
+                        <div className="prose prose-stone max-w-none text-card-foreground/90">
+                            <p className='font-semibold'>Description:</p>
+                            <p>{content.description}</p>
+                            <p className='font-semibold mt-4'>Content/Script:</p>
+                            <blockquote className='text-sm'>
+                                {content.content}
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+
+                <aside className="space-y-6 lg:col-span-1">
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <Wand2 className="h-6 w-6" />
+                            </div>
+                            <h2 className="text-2xl font-bold tracking-tight">AI Feedback</h2>
+                        </div>
+                        <AIFeedback feedback={content.aiFeedback} />
+                    </div>
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20 text-accent-foreground">
+                                <Users className="h-6 w-6" />
+                            </div>
+                            <h2 className="text-2xl font-bold tracking-tight">Community Feedback</h2>
+                        </div>
+                        <CommunityFeedback comments={content.communityFeedback} />
+                    </div>
+                </aside>
+            </main>
+        </div>
+    </div>
+  );
+}
