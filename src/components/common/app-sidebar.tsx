@@ -54,14 +54,9 @@ export default function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg">
-                <Image src="/logo-icon.svg" alt="Critical" width={28} height={28} />
-            </div>
-          <div className="flex flex-col">
-            <h2 className="text-lg font-semibold tracking-tighter">
-              크리티컬
-            </h2>
-          </div>
+            <Link href="/feed" className="flex items-center gap-2">
+                <Image src="/logo.png" alt="Critical" width={100} height={25} />
+            </Link>
           <SidebarTrigger className="ml-auto md:hidden">
             <PanelLeft />
           </SidebarTrigger>
