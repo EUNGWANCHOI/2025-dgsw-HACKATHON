@@ -37,8 +37,8 @@ const formSchema = z.object({
 });
 
 export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise<{ success: boolean; feedback?: AIFeedback; error?: string; }> {
-  if (!process.env.GOOGLE_API_KEY) {
-    return { success: false, error: 'GOOGLE_API_KEY가 설정되지 않았습니다. AI 분석을 건너뜁니다.' };
+  if (!process.env.GOOGLE_API_KEY && !process.env.OPENAI_API_KEY) {
+    return { success: false, error: 'API 키가 설정되지 않았습니다. AI 분석을 건너뜁니다.' };
   }
   try {
     const validatedData = formSchema.parse(values);
