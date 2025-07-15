@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // auth object might be a dummy if firebase is not initialized.
-    if (!auth.onAuthStateChanged) {
+    if (!auth || !auth.onAuthStateChanged) {
         setLoading(false);
         return;
     }
