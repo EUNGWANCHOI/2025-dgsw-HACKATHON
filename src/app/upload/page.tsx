@@ -9,7 +9,7 @@ export default function UploadPage() {
       <AppSidebar />
       <div className="flex-1">
         <SidebarInset>
-          <Header />
+          <Header title="콘텐츠 업로드" />
           <main className="p-4 sm:p-6 lg:p-8">
             <div className="mx-auto max-w-3xl">
               <div className="mb-6">

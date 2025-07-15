@@ -15,7 +15,7 @@ export default function ProfilePage() {
       <AppSidebar />
       <div className="flex-1">
         <SidebarInset>
-          <Header />
+          <Header title="프로필" />
           <main className="p-4 sm:p-6 lg:p-8">
             <Card className="mb-8">
                 <CardContent className="p-6">

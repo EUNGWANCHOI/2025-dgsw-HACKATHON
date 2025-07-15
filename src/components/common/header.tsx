@@ -13,14 +13,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { mockUser } from '@/lib/mock-data';
 
-export default function Header() {
+export default function Header({ title }: { title: string }) {
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="md:hidden">
           <PanelLeft />
         </SidebarTrigger>
-        <h1 className="text-xl font-semibold tracking-tight">대시보드</h1>
+        <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
       </div>
 
       <div className="relative ml-auto flex-1 md:grow-0">
