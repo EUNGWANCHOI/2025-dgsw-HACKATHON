@@ -41,9 +41,12 @@ const formSchema = z.object({
 export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise<{ success: boolean; feedback?: AIFeedback; error?: string; }> {
   // GOOGLE_API_KEY 또는 OPENAI_API_KEY 둘 다 없으면 mock feedback 반환
   if (!process.env.GOOGLE_API_KEY && !process.env.OPENAI_API_KEY) {
-    console.warn('API 키가 설정되지 않았습니다. 예시 AI 피드백을 반환합니다.');
+    console.warn('AI API 키가 설정되지 않았습니다. 예시 AI 피드백을 반환합니다.');
+    // API 호출 없이도 로딩 경험을 위해 약간의 지연 추가
+    await new Promise(resolve => setTimeout(resolve, 1000));
     return { success: true, feedback: MOCK_CONTENTS[0].aiFeedback };
   }
+  
   try {
     const validatedData = formSchema.parse(values);
 
@@ -130,6 +133,25 @@ export async function addCommunityComment(
   user: User,
   formData: FormData,
 ): Promise<{ success: boolean; error?: string; }> {
+    if (!IS_FIREBASE_CONFIGURED) {
+        // Firebase 설정이 없을 때 예시 데이터 모드로 동작
+        try {
+            const newCommentId = await addComment(contentId, {
+                author: user,
+                comment: formData.get('comment') as string,
+                likes: 0,
+                dislikes: 0,
+                isAccepted: false,
+            });
+            revalidatePath(`/content/${contentId}`);
+            return { success: true };
+        } catch (error) {
+            console.warn("Error adding mock comment:", error);
+            return { success: false, error: "예시 댓글 추가에 실패했습니다." };
+        }
+    }
+
+    // Firebase 설정이 있을 때의 원래 로직
     if (!user) {
         return { success: false, error: '로그인이 필요합니다.' };
     }
