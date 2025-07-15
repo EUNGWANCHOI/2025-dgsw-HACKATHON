@@ -80,7 +80,7 @@ export async function publishContent(
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
   try {
     const validatedData = formSchema.parse(values);
-    const [contents, user] = await Promise.all([getContents(), getCurrentUser()]);
+    const user = await getCurrentUser();
     
     const newContentId = Math.random().toString(36).substring(2, 9);
     
