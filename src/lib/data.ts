@@ -23,8 +23,8 @@ export async function getContents(): Promise<Content[]> {
     const contentList = contentSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content));
     return contentList;
   } catch (error) {
-    console.error("Error fetching contents: ", error);
-    return fetchContentsWithFallback();
+    console.error("Error fetching contents, falling back to mock data:", error);
+    return MOCK_CONTENTS;
   }
 }
 
@@ -49,7 +49,7 @@ export async function getContentById(id: string): Promise<Content | undefined> {
       return MOCK_CONTENTS.find(c => c.id === id);
     }
   } catch (error) {
-    console.error("Error fetching content by ID: ", error);
+    console.error("Error fetching content by ID, falling back to mock data: ", error);
     console.warn(`Falling back to mock data for content ID: ${id}`);
     return MOCK_CONTENTS.find(c => c.id === id);
   }
@@ -67,7 +67,7 @@ export async function getUserContents(userName: string): Promise<Content[]> {
         const contentList = contentSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content));
         return contentList;
     } catch (error) {
-        console.error("Error fetching user contents: ", error);
+        console.error("Error fetching user contents, falling back to mock data: ", error);
         console.warn(`Falling back to mock data for user contents: ${userName}`);
         return MOCK_CONTENTS.filter(c => c.author.name === userName);
     }
@@ -107,7 +107,10 @@ export async function addComment(contentId: string, comment: Omit<CommunityComme
         id: `mock-comment-${Date.now()}`,
         createdAt: Timestamp.now(),
       };
-      content.communityFeedback.push(newComment);
+      if (!content.communityFeedback) {
+        content.communityFeedback = [];
+      }
+      content.communityFeedback.unshift(newComment);
       return newComment.id!;
     }
     throw new Error('Mock content not found');
