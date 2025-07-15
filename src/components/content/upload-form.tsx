@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -120,7 +121,7 @@ export default function UploadForm() {
           title: '게시 완료!',
           description: "콘텐츠를 피드에 성공적으로 게시했습니다.",
         });
-        router.push(`/content/${result.contentId}`);
+        router.push(`/feed`);
       } else {
         throw new Error(result.error || '알 수 없는 오류가 발생했습니다.');
       }
