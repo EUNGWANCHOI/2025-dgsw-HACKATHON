@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import type { CommunityComment } from '@/lib/types';
 import { useAuth } from '@/contexts/auth-context';
 import { Textarea } from '../ui/textarea';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { addCommunityComment } from '@/app/actions';
 
@@ -27,11 +27,11 @@ interface CommunityFeedbackFormProps {
 }
 
 function SubmitButton() {
-    const [pending, setPending] = useState(false);
+    const [isPending, startTransition] = useTransition();
     
     return (
-        <Button type="submit" size="icon" disabled={pending} onClick={() => setPending(true)}>
-            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        <Button type="submit" size="icon" disabled={isPending} >
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">댓글 달기</span>
         </Button>
     )
@@ -41,20 +41,23 @@ export default function CommunityFeedbackForm({ contentId, comments }: Community
   const { user } = useAuth();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [isPending, startTransition] = useTransition();
 
   const handleFormAction = async (formData: FormData) => {
     if (!user) {
         toast({ variant: 'destructive', title: '오류', description: '로그인이 필요합니다.' });
         return;
     }
-
-    const result = await addCommunityComment(contentId, user, formData);
-    if(result.success) {
-        toast({ title: '성공', description: '댓글이 성공적으로 등록되었습니다.' });
-        formRef.current?.reset();
-    } else {
-        toast({ variant: 'destructive', title: '오류', description: result.error });
-    }
+    
+    startTransition(async () => {
+        const result = await addCommunityComment(contentId, user, formData);
+        if(result.success) {
+            toast({ title: '성공', description: '댓글이 성공적으로 등록되었습니다.' });
+            formRef.current?.reset();
+        } else {
+            toast({ variant: 'destructive', title: '오류', description: result.error });
+        }
+    });
   }
 
   return (
@@ -123,8 +126,12 @@ export default function CommunityFeedbackForm({ contentId, comments }: Community
                   placeholder="피드백을 남겨주세요..."
                   className="min-h-[40px] resize-none"
                   rows={1}
+                  disabled={isPending}
               />
-              <SubmitButton />
+              <Button type="submit" size="icon" disabled={isPending}>
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                <span className="sr-only">댓글 달기</span>
+              </Button>
           </form>
         </CardFooter>
       )}
