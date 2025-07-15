@@ -50,7 +50,7 @@ export default function LoginPage() {
             <div className="mt-4 text-center text-sm">
                 계정이 없으신가요?
                 <Button asChild variant="link" className="text-primary hover:text-primary/90">
-                    <Link href="#">
+                    <Link href="/register">
                         회원가입
                     </Link>
                 </Button>
