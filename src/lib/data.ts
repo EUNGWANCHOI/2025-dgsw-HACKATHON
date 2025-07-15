@@ -10,7 +10,7 @@ const USE_MOCK_DATA = !IS_FIREBASE_CONFIGURED;
 export async function getContents(): Promise<Content[]> {
   if (USE_MOCK_DATA) {
     console.log("Using mock data for contents because Firebase is not configured.");
-    return MOCK_CONTENTS;
+    return [...MOCK_CONTENTS];
   }
   try {
     const contentsCol = collection(db, 'contents');
@@ -20,7 +20,7 @@ export async function getContents(): Promise<Content[]> {
     return contentList;
   } catch (error) {
     console.error("Error fetching contents from Firestore, falling back to mock data:", error);
-    return MOCK_CONTENTS;
+    return [...MOCK_CONTENTS];
   }
 }
 
@@ -35,7 +35,6 @@ export async function getContentById(id: string): Promise<Content | undefined> {
     if (contentSnap.exists()) {
       const contentData = { id: contentSnap.id, ...contentSnap.data() } as Content;
       
-      // Subcollection for comments
       const feedbackCol = collection(db, `contents/${id}/communityFeedback`);
       const feedbackQuery = query(feedbackCol, orderBy('createdAt', 'desc'));
       const feedbackSnapshot = await getDocs(feedbackQuery);
@@ -113,7 +112,6 @@ export async function addComment(contentId: string, comment: Omit<CommunityComme
   }
 
   try {
-    // Note: This adds a comment to a subcollection, not the main document array.
     const feedbackCol = collection(db, `contents/${contentId}/communityFeedback`);
     const docRef = await addDoc(feedbackCol, {
       ...comment,
