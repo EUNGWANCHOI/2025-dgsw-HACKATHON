@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useEffect, useState, Dispatch, SetStateAction } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, IS_FIREBASE_CONFIGURED } from '@/lib/firebase';
 import type { User } from '@/lib/types';
 
 interface AuthContextType {
@@ -19,10 +19,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth || !auth.onAuthStateChanged) {
+    // Firebase가 설정되지 않았거나 auth 객체에 onAuthStateChanged가 없으면 로딩 종료
+    if (!IS_FIREBASE_CONFIGURED || !auth || typeof auth.onAuthStateChanged !== 'function') {
+        const mockUser = { name: '게스트 사용자', avatarUrl: 'https://i.pravatar.cc/150?u=guest' };
+        setUser(mockUser);
         setLoading(false);
         return;
     }
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         const displayNameParts = firebaseUser.displayName?.split('|') ?? [firebaseUser.email, ''];

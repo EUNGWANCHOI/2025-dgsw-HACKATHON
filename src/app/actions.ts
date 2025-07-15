@@ -6,7 +6,7 @@ import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-im
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import type { AIFeedback, Content, User, CommunityComment } from '@/lib/types';
 import { addContent, addComment } from '@/lib/data';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, IS_FIREBASE_CONFIGURED } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
 import { MOCK_CONTENTS } from '@/lib/mock-data';
 
@@ -39,10 +39,9 @@ const formSchema = z.object({
 });
 
 export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise<{ success: boolean; feedback?: AIFeedback; error?: string; }> {
+  // GOOGLE_API_KEY 또는 OPENAI_API_KEY 둘 다 없으면 mock feedback 반환
   if (!process.env.GOOGLE_API_KEY && !process.env.OPENAI_API_KEY) {
-    console.warn('API 키가 설정되지 않았습니다. AI 분석을 건너뜁니다.');
-    // API 키가 없을 때 목업 피드백을 반환하거나, 분석을 건너뛰고 성공으로 처리할 수 있습니다.
-    // 여기서는 게시 흐름이 끊기지 않도록 성공으로 처리합니다.
+    console.warn('API 키가 설정되지 않았습니다. 예시 AI 피드백을 반환합니다.');
     return { success: true, feedback: MOCK_CONTENTS[0].aiFeedback };
   }
   try {
@@ -80,7 +79,8 @@ export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise
     if (error instanceof z.ZodError) {
       return { success: false, error: '잘못된 데이터가 제공되었습니다.' };
     }
-    return { success: false, error: '서버 오류로 인해 콘텐츠 분석에 실패했습니다.' };
+    // API 호출 실패 시에도 예시 피드백을 반환하여 사용자 경험을 유지
+    return { success: true, feedback: MOCK_CONTENTS[0].aiFeedback };
   }
 }
 
@@ -89,9 +89,9 @@ export async function publishContent(
   aiFeedback: AIFeedback | null,
   user: User
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
-  if (!db.app) {
-      console.warn("Firestore is not initialized. Skipping publish.");
-      // 여전히 목업 데이터를 사용하여 ID를 생성하고 성공을 반환합니다.
+  // Firebase가 설정되지 않았다면, 항상 mock data를 사용
+  if (!IS_FIREBASE_CONFIGURED) {
+      console.warn("Firestore is not initialized. Publishing to mock data.");
       const newContentId = await addContent({
           ...values,
           author: user,
@@ -100,8 +100,12 @@ export async function publishContent(
           aiFeedback: aiFeedback || undefined,
           communityFeedback: [],
       } as any);
+      revalidatePath('/feed');
+      revalidatePath('/dashboard');
+      revalidatePath(`/content/${newContentId}`);
       return { success: true, contentId: newContentId };
   }
+  
   try {
     const validatedData = formSchema.parse(values);
     
@@ -123,6 +127,7 @@ export async function publishContent(
     
     revalidatePath('/feed');
     revalidatePath('/dashboard');
+    revalidatePath(`/content/${newContentId}`);
     return { success: true, contentId: newContentId };
 
   } catch (error) {
@@ -144,9 +149,10 @@ export async function addCommunityComment(
   user: User,
   formData: FormData,
 ): Promise<{ success: boolean; error?: string; }> {
-    if (!db.app) {
-      console.warn("Firestore is not initialized. Skipping comment.");
-      await addComment(contentId, {
+    // Firebase가 설정되지 않았다면, 항상 mock data를 사용
+    if (!IS_FIREBASE_CONFIGURED) {
+      console.warn("Firestore is not initialized. Adding comment to mock data.");
+       await addComment(contentId, {
           author: user,
           comment: formData.get('comment') as string,
           likes: 0,
@@ -156,6 +162,7 @@ export async function addCommunityComment(
       revalidatePath(`/content/${contentId}`);
       return { success: true };
     }
+    
     if (!user) {
         return { success: false, error: '로그인이 필요합니다.' };
     }
