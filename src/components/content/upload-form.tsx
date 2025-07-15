@@ -33,7 +33,6 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import type { AIFeedback as AIFeedbackType } from '@/lib/types';
 import AIFeedback from './ai-feedback';
 import { useAuth } from '@/contexts/auth-context';
-import { MOCK_CONTENTS } from '@/lib/mock-data';
 
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
@@ -88,18 +87,9 @@ export default function UploadForm() {
   async function onAnalyze(values: z.infer<typeof formSchema>) {
     setIsAnalyzing(true);
     setAiFeedback(null);
-
-    // API 키가 없으면, 예시 피드백을 보여줍니다.
-    if (!process.env.NEXT_PUBLIC_GOOGLE_API_KEY && !process.env.GOOGLE_API_KEY && !process.env.OPENAI_API_KEY) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 로딩 인디케이터를 보여주기 위한 딜레이
-        setAiFeedback(MOCK_CONTENTS[0].aiFeedback!);
-        toast({
-            title: 'AI 예시 피드백',
-            description: "API 키가 설정되지 않아 예시 피드백을 표시합니다.",
-        });
-        setIsAnalyzing(false);
-        return;
-    }
+    
+    // 로딩 인디케이터를 보여주기 위한 가짜 딜레이
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     try {
       const result = await getAIFeedback(values);

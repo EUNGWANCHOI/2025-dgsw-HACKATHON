@@ -19,7 +19,15 @@ let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
 
-const IS_FIREBASE_CONFIGURED = Object.values(firebaseConfig).every(Boolean);
+// 모든 Firebase 관련 환경 변수가 설정되었는지 확인
+const IS_FIREBASE_CONFIGURED = 
+    !!firebaseConfig.apiKey &&
+    !!firebaseConfig.authDomain &&
+    !!firebaseConfig.projectId &&
+    !!firebaseConfig.storageBucket &&
+    !!firebaseConfig.messagingSenderId &&
+    !!firebaseConfig.appId;
+
 
 if (IS_FIREBASE_CONFIGURED) {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -28,13 +36,10 @@ if (IS_FIREBASE_CONFIGURED) {
     storage = getStorage(app);
 } else {
     console.warn("Firebase environment variables are not set. Firebase is not initialized. Using mock data where applicable.");
-    app = {} as FirebaseApp;
-    auth = {
-        onAuthStateChanged: () => () => {}, // Mock function
-    } as unknown as Auth;
-    db = {
-        app: null // Mock property
-    } as unknown as Firestore;
+    // Firebase가 설정되지 않았을 때 mock 객체 할당
+    app = {} as FirebaseApp; // 빈 객체로 초기화
+    auth = { onAuthStateChanged: () => () => {} } as unknown as Auth; // onAuthStateChanged가 있는 mock auth
+    db = { app: null } as unknown as Firestore; // app 속성으로 초기화 여부 판단
     storage = {} as FirebaseStorage;
 }
 
