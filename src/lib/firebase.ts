@@ -14,11 +14,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
-let storage: FirebaseStorage;
-
 // 모든 Firebase 관련 환경 변수가 설정되었는지 확인
 const IS_FIREBASE_CONFIGURED = 
     !!firebaseConfig.apiKey &&
@@ -29,17 +24,32 @@ const IS_FIREBASE_CONFIGURED =
     !!firebaseConfig.appId;
 
 
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+let storage: FirebaseStorage;
+
+
 if (IS_FIREBASE_CONFIGURED) {
-    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    auth = getAuth(app);
-    db = getFirestore(app);
-    storage = getStorage(app);
+    try {
+      app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+      auth = getAuth(app);
+      db = getFirestore(app);
+      storage = getStorage(app);
+    } catch (e) {
+      console.error('Firebase initialization error', e);
+      // 초기화 실패 시, mock 객체를 할당합니다.
+      app = {} as FirebaseApp;
+      auth = { onAuthStateChanged: () => () => {} } as unknown as Auth;
+      db = {} as Firestore;
+      storage = {} as FirebaseStorage;
+    }
 } else {
     console.warn("Firebase environment variables are not set. Firebase is not initialized. Using mock data where applicable.");
     // Firebase가 설정되지 않았을 때 mock 객체 할당
     app = {} as FirebaseApp; // 빈 객체로 초기화
     auth = { onAuthStateChanged: () => () => {} } as unknown as Auth; // onAuthStateChanged가 있는 mock auth
-    db = { app: null } as unknown as Firestore; // app 속성으로 초기화 여부 판단
+    db = {} as unknown as Firestore; // app 속성으로 초기화 여부 판단
     storage = {} as FirebaseStorage;
 }
 

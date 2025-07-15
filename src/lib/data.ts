@@ -10,7 +10,7 @@ const USE_MOCK_DATA = !IS_FIREBASE_CONFIGURED;
 export async function getContents(): Promise<Content[]> {
   if (USE_MOCK_DATA) {
     console.log("Using mock data for contents because Firebase is not configured.");
-    return Promise.resolve([...MOCK_CONTENTS]);
+    return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS)));
   }
   try {
     const contentsCol = collection(db, 'contents');
@@ -20,14 +20,14 @@ export async function getContents(): Promise<Content[]> {
     return contentList;
   } catch (error) {
     console.error("Error fetching contents from Firestore, falling back to mock data:", error);
-    return Promise.resolve([...MOCK_CONTENTS]);
+    return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS)));
   }
 }
 
 export async function getContentById(id: string): Promise<Content | undefined> {
    if (USE_MOCK_DATA) {
     console.log(`Using mock data for content ID: ${id} because Firebase is not configured.`);
-    return Promise.resolve(MOCK_CONTENTS.find(c => c.id === id));
+    return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.find(c => c.id === id))));
   }
   try {
     const contentDocRef = doc(db, 'contents', id);
@@ -43,18 +43,18 @@ export async function getContentById(id: string): Promise<Content | undefined> {
       return contentData;
     } else {
       console.warn(`Content with ID ${id} not found in Firestore. Falling back to mock data.`);
-      return Promise.resolve(MOCK_CONTENTS.find(c => c.id === id));
+      return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.find(c => c.id === id))));
     }
   } catch (error) {
     console.error(`Error fetching content by ID ${id} from Firestore, falling back to mock data:`, error);
-    return Promise.resolve(MOCK_CONTENTS.find(c => c.id === id));
+    return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.find(c => c.id === id))));
   }
 }
 
 export async function getUserContents(userName: string): Promise<Content[]> {
     if (USE_MOCK_DATA) {
         console.log(`Using mock data for user contents: ${userName} because Firebase is not configured.`);
-        return Promise.resolve(MOCK_CONTENTS.filter(c => c.author.name === userName));
+        return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.filter(c => c.author.name === userName))));
     }
     try {
         const contentsCol = collection(db, 'contents');
@@ -64,7 +64,7 @@ export async function getUserContents(userName: string): Promise<Content[]> {
         return contentList;
     } catch (error) {
         console.error(`Error fetching user contents for ${userName} from Firestore, falling back to mock data:`, error);
-        return Promise.resolve(MOCK_CONTENTS.filter(c => c.author.name === userName));
+        return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.filter(c => c.author.name === userName))));
     }
 }
 
