@@ -54,7 +54,6 @@ const prompt = ai.definePrompt({
       transcript: z.string(),
   })},
   output: {schema: AnalyzeYouTubeVideoOutputSchema},
-  tools: [youtubeTranscriptTool],
   prompt: `You are an AI content analysis tool designed to provide feedback to content creators.
 
 You will analyze the video transcript provided based on the following criteria:
@@ -78,7 +77,7 @@ const analyzeYouTubeVideoFlow = ai.defineFlow(
     outputSchema: AnalyzeYouTubeVideoOutputSchema,
   },
   async (input) => {
-    const transcript = await YoutubeTranscript.fetchTranscript(input.videoUrl).then(t => t.map(i => i.text).join(' ')).catch(() => '스크립트를 가져올 수 없습니다.');
+    const transcript = await youtubeTranscriptTool({url: input.videoUrl});
 
     const {output} = await prompt({
         title: input.title,
