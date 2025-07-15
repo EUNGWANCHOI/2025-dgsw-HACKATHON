@@ -1,10 +1,11 @@
+
 'use server';
 
 import { z } from 'zod';
 import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-improvements';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
-import type { AIFeedback, Content } from '@/lib/types';
-import { getContents, getCurrentUser, addContent } from '@/lib/data';
+import type { AIFeedback, Content, User } from '@/lib/types';
+import { getContents, addContent } from '@/lib/data';
 
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
@@ -76,11 +77,11 @@ export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise
 
 export async function publishContent(
   values: z.infer<typeof formSchema>,
-  aiFeedback: AIFeedback | null
+  aiFeedback: AIFeedback | null,
+  user: User
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
   try {
     const validatedData = formSchema.parse(values);
-    const user = await getCurrentUser();
     
     const newContentId = Math.random().toString(36).substring(2, 9);
     

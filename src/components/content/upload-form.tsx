@@ -32,6 +32,7 @@ import { getAIFeedback, publishContent } from '@/app/actions';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import type { AIFeedback as AIFeedbackType } from '@/lib/types';
 import AIFeedback from './ai-feedback';
+import { useAuth } from '@/contexts/auth-context';
 
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
@@ -68,6 +69,7 @@ export default function UploadForm() {
   const [aiFeedback, setAiFeedback] = useState<AIFeedbackType | null>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const { user, loading } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -113,9 +115,17 @@ export default function UploadForm() {
   }
 
   async function onPublish(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({
+            variant: 'destructive',
+            title: '오류',
+            description: '콘텐츠를 게시하려면 먼저 로그인해야 합니다.',
+        });
+        return;
+    }
     setIsPublishing(true);
      try {
-      const result = await publishContent(values, aiFeedback);
+      const result = await publishContent(values, aiFeedback, user);
       if (result.success && result.contentId) {
         toast({
           title: '게시 완료!',
@@ -139,6 +149,8 @@ export default function UploadForm() {
       setIsPublishing(false);
     }
   }
+
+  const isButtonDisabled = isAnalyzing || isPublishing || loading;
 
   return (
     <Card>
@@ -259,7 +271,7 @@ export default function UploadForm() {
               )}
           </CardContent>
           <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end items-center gap-2 p-6 pt-0">
-              <Button type="button" variant="outline" onClick={form.handleSubmit(onAnalyze)} disabled={isAnalyzing || isPublishing}>
+              <Button type="button" variant="outline" onClick={form.handleSubmit(onAnalyze)} disabled={isButtonDisabled}>
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -272,7 +284,7 @@ export default function UploadForm() {
                   </>
                 )}
               </Button>
-              <Button type="button" onClick={form.handleSubmit(onPublish)} disabled={isPublishing}>
+              <Button type="button" onClick={form.handleSubmit(onPublish)} disabled={isButtonDisabled}>
                  {isPublishing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

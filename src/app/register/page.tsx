@@ -1,12 +1,67 @@
+
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RegisterPage() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      toast({
+        variant: 'destructive',
+        title: '오류',
+        description: '비밀번호가 일치하지 않습니다.',
+      });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, {
+        displayName: `${name}|https://i.pravatar.cc/150?u=${userCredential.user.uid}`,
+      });
+
+      toast({
+        title: '회원가입 성공!',
+        description: '로그인 페이지로 이동합니다.',
+      });
+      router.push('/login');
+    } catch (error: any) {
+      console.error('Registration error', error);
+      let errorMessage = '회원가입 중 오류가 발생했습니다.';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = '이미 사용 중인 이메일입니다.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = '비밀번호는 6자 이상이어야 합니다.';
+      }
+      toast({
+        variant: 'destructive',
+        title: '회원가입 실패',
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
       <div className="hidden bg-primary lg:flex items-center justify-center p-8">
@@ -34,27 +89,55 @@ export default function RegisterPage() {
               계정을 만들고 피드백 여정을 시작하세요.
             </p>
           </div>
-          <div className="grid gap-4">
+          <form onSubmit={handleRegister} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="name">이름</Label>
-              <Input id="name" placeholder="홍길동" required />
+              <Input
+                id="name"
+                placeholder="홍길동"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="id">아이디</Label>
-              <Input id="id" placeholder="아이디를 입력하세요" required />
+              <Label htmlFor="email">이메일</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">비밀번호</Label>
-              <Input id="password" type="password" placeholder="비밀번호를 입력하세요" required />
+              <Input
+                id="password"
+                type="password"
+                placeholder="비밀번호를 입력하세요"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="confirm-password">비밀번호 확인</Label>
-              <Input id="confirm-password" type="password" placeholder="비밀번호를 다시 입력하세요" required />
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="비밀번호를 다시 입력하세요"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               회원가입
             </Button>
-          </div>
+          </form>
           <div className="mt-4 text-center text-sm">
             이미 계정이 있으신가요?
             <Button asChild variant="link" className="text-primary hover:text-primary/90">
