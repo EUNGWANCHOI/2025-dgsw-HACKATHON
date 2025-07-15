@@ -89,47 +89,26 @@ export async function publishContent(
   aiFeedback: AIFeedback | null,
   user: User
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
-  // Firebase가 설정되지 않았다면, 항상 mock data를 사용
-  if (!IS_FIREBASE_CONFIGURED) {
-      console.warn("Firestore is not initialized. Publishing to mock data.");
-      const newContentId = await addContent({
-          title: values.title,
-          description: values.description,
-          category: values.category,
-          author: user,
-          content: values.content || `YouTube 영상: ${values.youtubeUrl}`,
-          thumbnailUrl: values.thumbnailUrl || 'https://placehold.co/600x400.png',
-          aiFeedback: aiFeedback || undefined,
-          communityFeedback: [],
-      });
-      revalidatePath('/feed');
-      revalidatePath('/dashboard');
-      revalidatePath(`/content/${newContentId}`);
-      return { success: true, contentId: newContentId };
-  }
-  
   try {
     const validatedData = formSchema.parse(values);
     
-    const newContent: Omit<Content, 'id' | 'createdAt' | 'communityFeedback'> & { communityFeedback: CommunityComment[] } = {
-      title: validatedData.title,
-      description: validatedData.description,
-      category: validatedData.category,
-      content: validatedData.category === '영상' ? `YouTube 영상: ${validatedData.youtubeUrl}` : validatedData.content ?? '',
-      author: user,
-      thumbnailUrl: validatedData.thumbnailUrl || 'https://placehold.co/600x400.png',
-      communityFeedback: [],
+    const newContentData: Omit<Content, 'id' | 'createdAt'> = {
+        title: validatedData.title,
+        description: validatedData.description,
+        category: validatedData.category,
+        content: validatedData.category === '영상' ? `YouTube 영상: ${validatedData.youtubeUrl}` : (validatedData.content ?? ''),
+        author: user,
+        thumbnailUrl: validatedData.thumbnailUrl || 'https://placehold.co/600x400.png',
+        aiFeedback: aiFeedback || undefined,
+        communityFeedback: [],
     };
-
-    if (aiFeedback) {
-        newContent.aiFeedback = aiFeedback;
-    }
-
-    const newContentId = await addContent(newContent);
+    
+    const newContentId = await addContent(newContentData);
     
     revalidatePath('/feed');
     revalidatePath('/dashboard');
     revalidatePath(`/content/${newContentId}`);
+
     return { success: true, contentId: newContentId };
 
   } catch (error) {
@@ -151,20 +130,6 @@ export async function addCommunityComment(
   user: User,
   formData: FormData,
 ): Promise<{ success: boolean; error?: string; }> {
-    // Firebase가 설정되지 않았다면, 항상 mock data를 사용
-    if (!IS_FIREBASE_CONFIGURED) {
-      console.warn("Firestore is not initialized. Adding comment to mock data.");
-       await addComment(contentId, {
-          author: user,
-          comment: formData.get('comment') as string,
-          likes: 0,
-          dislikes: 0,
-          isAccepted: false,
-      });
-      revalidatePath(`/content/${contentId}`);
-      return { success: true };
-    }
-    
     if (!user) {
         return { success: false, error: '로그인이 필요합니다.' };
     }
@@ -181,14 +146,16 @@ export async function addCommunityComment(
     }
 
     try {
-        const newComment: Omit<CommunityComment, 'id' | 'createdAt'> = {
+        const newCommentData: Omit<CommunityComment, 'id' | 'createdAt'> = {
             author: user,
             comment: validatedFields.data.comment,
             likes: 0,
             dislikes: 0,
             isAccepted: false,
         };
-        await addComment(contentId, newComment);
+
+        await addComment(contentId, newCommentData);
+
         revalidatePath(`/content/${contentId}`);
         return { success: true };
     } catch (error) {
