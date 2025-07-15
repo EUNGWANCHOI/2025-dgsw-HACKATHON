@@ -1,6 +1,9 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { FileText, MessageSquare, Video, Mic, ThumbsUp } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 import type { Content } from '@/lib/types';
 import {
@@ -22,14 +25,16 @@ const categoryIcons = {
   '스크립트': <FileText className="h-4 w-4" />,
   '팟캐스트': <Mic className="h-4 w-4" />,
   '아티클': <FileText className="h-4 w-4" />,
+  '채널 기획': <FileText className="h-4 w-4" />,
 };
 
 export default function ContentCard({ content }: ContentCardProps) {
-    const totalLikes = content.communityFeedback.reduce((acc, curr) => acc + curr.likes, 0);
+    const totalLikes = content.communityFeedback?.reduce((acc, curr) => acc + curr.likes, 0) || 0;
+    const createdAtDate = content.createdAt?.toDate();
 
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
-      <Link href={`/content/${content.id}`} className="block">
+      <Link href={`/content/${content.id}`} className="flex flex-col flex-grow">
         <CardHeader className="p-0">
             <div className="relative aspect-video">
               <Image
@@ -49,6 +54,9 @@ export default function ContentCard({ content }: ContentCardProps) {
           <CardTitle className="text-lg font-medium leading-tight hover:text-primary">
             {content.title}
           </CardTitle>
+           <p className="text-xs text-muted-foreground mt-1">
+             {createdAtDate ? `${formatDistanceToNow(createdAtDate, { addSuffix: true, locale: ko })}` : '날짜 정보 없음'}
+           </p>
           <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{content.description}</p>
         </CardContent>
       </Link>
@@ -71,7 +79,7 @@ export default function ContentCard({ content }: ContentCardProps) {
             </div>
             <div className="flex items-center gap-1">
                 <MessageSquare className="h-3.5 w-3.5" />
-                <span>{content.communityFeedback.length}</span>
+                <span>{content.communityFeedback?.length || 0}</span>
             </div>
         </div>
       </CardFooter>

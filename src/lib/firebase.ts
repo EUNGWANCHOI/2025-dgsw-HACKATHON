@@ -1,6 +1,9 @@
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
+
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,17 +16,22 @@ const firebaseConfig = {
 
 let app: FirebaseApp;
 let auth: Auth;
+let db: Firestore;
+let storage: FirebaseStorage;
 
-// Initialize Firebase only if all environment variables are set
+
 if (Object.values(firebaseConfig).every(Boolean)) {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
 } else {
     console.warn("Firebase environment variables are not set. Firebase is not initialized.");
-    // Provide dummy objects to prevent app from crashing
     app = {} as FirebaseApp;
     auth = {} as Auth;
+    db = {} as Firestore;
+    storage = {} as FirebaseStorage;
 }
 
 
-export { app, auth };
+export { app, auth, db, storage };

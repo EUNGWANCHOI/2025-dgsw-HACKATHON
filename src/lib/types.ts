@@ -1,3 +1,6 @@
+
+import type { Timestamp } from 'firebase/firestore';
+
 export type ContentCategory = '영상' | '스크립트' | '팟캐스트' | '아티클' | '채널 기획';
 
 export interface User {
@@ -22,7 +25,7 @@ export interface CommunityComment {
   likes: number;
   dislikes: number;
   isAccepted: boolean;
-  createdAt: string;
+  createdAt: Timestamp;
 }
 
 export interface Content {
@@ -33,7 +36,7 @@ export interface Content {
   content: string;
   author: User;
   thumbnailUrl: string;
-  createdAt: string;
+  createdAt: Timestamp;
   aiFeedback?: AIFeedback;
   communityFeedback: CommunityComment[];
 }

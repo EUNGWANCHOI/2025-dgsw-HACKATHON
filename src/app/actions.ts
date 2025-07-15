@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-improvements';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import type { AIFeedback, Content, User } from '@/lib/types';
-import { getContents, addContent } from '@/lib/data';
-
+import { addContent } from '@/lib/data';
+import { auth } from '@/lib/firebase';
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
   (url) => {
@@ -25,6 +25,7 @@ const formSchema = z.object({
   category: z.enum(['영상', '스크립트', '팟캐스트', '아티클', '채널 기획']),
   content: z.string().optional(),
   youtubeUrl: z.string().optional(),
+  thumbnailUrl: z.string().url().optional(),
 }).refine(data => {
     if (data.category === '영상') {
         return !!data.youtubeUrl;
@@ -83,17 +84,13 @@ export async function publishContent(
   try {
     const validatedData = formSchema.parse(values);
     
-    const newContentId = Math.random().toString(36).substring(2, 9);
-    
-    const newContent: Content = {
-      id: newContentId,
+    const newContent: Omit<Content, 'id' | 'createdAt'> = {
       title: validatedData.title,
       description: validatedData.description,
       category: validatedData.category,
       content: validatedData.category === '영상' ? `YouTube 영상: ${validatedData.youtubeUrl}` : validatedData.content ?? '',
       author: user,
-      thumbnailUrl: 'https://placehold.co/600x400.png',
-      createdAt: '방금 전',
+      thumbnailUrl: validatedData.thumbnailUrl || 'https://placehold.co/600x400.png',
       communityFeedback: [],
     };
 
@@ -101,7 +98,7 @@ export async function publishContent(
         newContent.aiFeedback = aiFeedback;
     }
 
-    addContent(newContent);
+    const newContentId = await addContent(newContent);
     
     return { success: true, contentId: newContentId };
 

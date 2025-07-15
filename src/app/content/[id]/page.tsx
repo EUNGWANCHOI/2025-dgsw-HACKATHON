@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -10,6 +11,8 @@ import {
   Wand2,
 } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 import { getContentById } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -34,12 +37,14 @@ export default async function ContentPage({ params }: { params: { id: string } }
   if (!content) {
     notFound();
   }
+  
+  const createdAtDate = content.createdAt?.toDate();
 
   return (
     <div className="bg-muted/30">
         <div className="container mx-auto max-w-6xl py-8">
             <Button asChild variant="ghost" className="mb-4">
-                <Link href="/">
+                <Link href="/feed">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     피드로 돌아가기
                 </Link>
@@ -75,6 +80,8 @@ export default async function ContentPage({ params }: { params: { id: string } }
                                     </Avatar>
                                     <span>{content.author.name}</span>
                                 </div>
+                                <span>•</span>
+                                <span>{createdAtDate ? format(createdAtDate, 'yyyy년 MM월 dd일', { locale: ko }) : ''}</span>
                              </div>
                            </div>
                         </div>
@@ -119,7 +126,7 @@ export default async function ContentPage({ params }: { params: { id: string } }
                             </div>
                             <h2 className="text-2xl font-bold tracking-tight">커뮤니티 피드백</h2>
                         </div>
-                        <CommunityFeedback comments={content.communityFeedback} />
+                        <CommunityFeedback comments={content.communityFeedback || []} />
                     </div>
                 </aside>
             </main>
