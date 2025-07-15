@@ -33,6 +33,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import type { AIFeedback as AIFeedbackType } from '@/lib/types';
 import AIFeedback from './ai-feedback';
 import { useAuth } from '@/contexts/auth-context';
+import { MOCK_CONTENTS } from '@/lib/mock-data';
 
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
@@ -88,11 +89,13 @@ export default function UploadForm() {
     setIsAnalyzing(true);
     setAiFeedback(null);
 
+    // API 키가 없으면, 예시 피드백을 보여줍니다.
     if (!process.env.NEXT_PUBLIC_GOOGLE_API_KEY && !process.env.GOOGLE_API_KEY && !process.env.OPENAI_API_KEY) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 로딩 인디케이터를 보여주기 위한 딜레이
+        setAiFeedback(MOCK_CONTENTS[0].aiFeedback!);
         toast({
-            variant: 'destructive',
-            title: 'AI 분석 불가',
-            description: 'API 키가 설정되지 않았습니다. AI 피드백을 받으려면 .env 파일에 키를 추가해주세요.',
+            title: 'AI 예시 피드백',
+            description: "API 키가 설정되지 않아 예시 피드백을 표시합니다.",
         });
         setIsAnalyzing(false);
         return;
@@ -142,7 +145,7 @@ export default function UploadForm() {
           title: '게시 완료!',
           description: "콘텐츠를 피드에 성공적으로 게시했습니다.",
         });
-        router.push(`/feed`);
+        router.push(`/content/${result.contentId}`);
       } else {
         throw new Error(result.error || '알 수 없는 오류가 발생했습니다.');
       }

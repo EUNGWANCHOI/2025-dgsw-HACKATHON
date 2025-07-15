@@ -8,6 +8,7 @@ import type { AIFeedback, Content, User, CommunityComment } from '@/lib/types';
 import { addContent, addComment } from '@/lib/data';
 import { auth, db } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
+import { MOCK_CONTENTS } from '@/lib/mock-data';
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
   (url) => {
@@ -39,7 +40,10 @@ const formSchema = z.object({
 
 export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise<{ success: boolean; feedback?: AIFeedback; error?: string; }> {
   if (!process.env.GOOGLE_API_KEY && !process.env.OPENAI_API_KEY) {
-    return { success: false, error: 'API 키가 설정되지 않았습니다. AI 분석을 건너뜁니다.' };
+    console.warn('API 키가 설정되지 않았습니다. AI 분석을 건너뜁니다.');
+    // API 키가 없을 때 목업 피드백을 반환하거나, 분석을 건너뛰고 성공으로 처리할 수 있습니다.
+    // 여기서는 게시 흐름이 끊기지 않도록 성공으로 처리합니다.
+    return { success: true, feedback: MOCK_CONTENTS[0].aiFeedback };
   }
   try {
     const validatedData = formSchema.parse(values);
@@ -87,7 +91,16 @@ export async function publishContent(
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
   if (!db.app) {
       console.warn("Firestore is not initialized. Skipping publish.");
-      return { success: true, contentId: 'mock-id' };
+      // 여전히 목업 데이터를 사용하여 ID를 생성하고 성공을 반환합니다.
+      const newContentId = await addContent({
+          ...values,
+          author: user,
+          content: values.content || `YouTube 영상: ${values.youtubeUrl}`,
+          thumbnailUrl: values.thumbnailUrl || 'https://placehold.co/600x400.png',
+          aiFeedback: aiFeedback || undefined,
+          communityFeedback: [],
+      } as any);
+      return { success: true, contentId: newContentId };
   }
   try {
     const validatedData = formSchema.parse(values);
@@ -133,6 +146,14 @@ export async function addCommunityComment(
 ): Promise<{ success: boolean; error?: string; }> {
     if (!db.app) {
       console.warn("Firestore is not initialized. Skipping comment.");
+      await addComment(contentId, {
+          author: user,
+          comment: formData.get('comment') as string,
+          likes: 0,
+          dislikes: 0,
+          isAccepted: false,
+      });
+      revalidatePath(`/content/${contentId}`);
       return { success: true };
     }
     if (!user) {
