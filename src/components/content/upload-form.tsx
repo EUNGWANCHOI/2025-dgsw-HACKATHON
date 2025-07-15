@@ -52,14 +52,25 @@ const formSchema = z.object({
   category: z.enum(['영상', '스크립트', '팟캐스트', '아티클', '채널 기획']),
   content: z.string().max(5000, '콘텐츠가 너무 깁니다. 최대 5000자까지 입력 가능합니다.').optional(),
   youtubeUrl: z.string().optional(),
-}).refine(data => {
+}).superRefine((data, ctx) => {
     if (data.category === '영상') {
-        return youtubeUrlSchema.safeParse(data.youtubeUrl).success;
+        const result = youtubeUrlSchema.safeParse(data.youtubeUrl);
+        if (!result.success) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: result.error.errors[0]?.message || '유효한 YouTube URL을 입력해주세요.',
+                path: ['youtubeUrl'],
+            });
+        }
+    } else {
+        if (!data.content || data.content.length < 50) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: '콘텐츠는 50자 이상이어야 합니다.',
+                path: ['content'],
+            });
+        }
     }
-    return !!data.content && data.content.length >= 50;
-}, {
-    message: "선택한 카테고리에 맞는 콘텐츠를 입력해주세요.",
-    path: ["content"],
 });
 
 
@@ -190,6 +201,8 @@ export default function UploadForm() {
                           form.setValue('content', '');
                           form.setValue('youtubeUrl', '');
                           setAiFeedback(null);
+                          // 카테고리 변경 시 유효성 재검사
+                          form.trigger(['youtubeUrl', 'content']);
                       }} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
