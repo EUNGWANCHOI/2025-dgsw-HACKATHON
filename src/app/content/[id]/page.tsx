@@ -31,6 +31,26 @@ const categoryIcons: Record<ContentCategory, React.ReactNode> = {
   '채널 기획': <FileText className="h-4 w-4 text-muted-foreground" />,
 };
 
+// Helper function to safely convert various date formats to a Date object
+const toSafeDate = (dateValue: any): Date | null => {
+  if (!dateValue) return null;
+  // Firestore Timestamp
+  if (typeof dateValue.toDate === 'function') {
+    return dateValue.toDate();
+  }
+  // JSON serialized Firestore Timestamp { seconds, nanoseconds }
+  if (typeof dateValue === 'object' && dateValue.seconds) {
+    return new Date(dateValue.seconds * 1000);
+  }
+  // Standard Date object or ISO string
+  const date = new Date(dateValue);
+  if (!isNaN(date.getTime())) {
+      return date;
+  }
+  return null;
+}
+
+
 export default async function ContentPage({ params }: { params: { id: string } }) {
   const content = await getContentById(params.id);
 
@@ -38,9 +58,7 @@ export default async function ContentPage({ params }: { params: { id: string } }
     notFound();
   }
   
-  const createdAtDate = content.createdAt && typeof content.createdAt.toDate === 'function' 
-        ? content.createdAt.toDate()
-        : content.createdAt ? new Date(content.createdAt as any) : null;
+  const createdAtDate = toSafeDate(content.createdAt);
 
   return (
     <div className="bg-muted/30">
