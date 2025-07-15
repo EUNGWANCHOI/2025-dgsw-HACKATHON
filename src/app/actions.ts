@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-improvements';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import type { AIFeedback, Content } from '@/lib/types';
-import { getContents, getCurrentUser } from '@/lib/data';
+import { getContents, getCurrentUser, addContent } from '@/lib/data';
 
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
@@ -100,11 +100,7 @@ export async function publishContent(
         newContent.aiFeedback = aiFeedback;
     }
 
-    // This is where you would push to a real database.
-    // For now, we can't add to the MOCK_CONTENTS array as it is not exported.
-    // In a real scenario, you'd have a function like `addContent(newContent)`.
-    console.log(`[Server Action] New content would be published with ID: ${newContentId}`);
-    console.log(newContent);
+    addContent(newContent);
     
     return { success: true, contentId: newContentId };
 
