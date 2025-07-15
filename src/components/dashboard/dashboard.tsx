@@ -1,11 +1,12 @@
 import { ArrowUp, BarChart, FileText, MessageSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ContentTypeChart } from './content-type-chart';
-import { mockContents } from '@/lib/mock-data';
+import { getContents } from '@/lib/data';
 
-export default function Dashboard() {
-    const totalContent = mockContents.length;
-    const totalFeedback = mockContents.reduce((sum, content) => sum + content.communityFeedback.length, 0);
+export default async function Dashboard() {
+    const contents = await getContents();
+    const totalContent = contents.length;
+    const totalFeedback = contents.reduce((sum, content) => sum + content.communityFeedback.length, 0);
 
   return (
     <div className="space-y-6">
@@ -56,7 +57,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ContentTypeChart />
+            <ContentTypeChart contents={contents} />
           </CardContent>
         </Card>
         <Card>

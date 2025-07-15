@@ -3,9 +3,10 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import ContentCard from './content-card';
-import { mockContents } from '@/lib/mock-data';
+import { getContents } from '@/lib/data';
 
-export default function Feed() {
+export default async function Feed() {
+  const contents = await getContents();
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -18,9 +19,9 @@ export default function Feed() {
         </Button>
       </div>
 
-      {mockContents.length > 0 ? (
+      {contents.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {mockContents.map((content) => (
+          {contents.map((content) => (
             <ContentCard key={content.id} content={content} />
           ))}
         </div>
