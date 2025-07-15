@@ -10,11 +10,7 @@ export default function LoginPage() {
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
-            <Link href="/" className="mb-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-                <ArrowLeft className="h-4 w-4" />
-                홈으로 돌아가기
-            </Link>
-          <div className="grid gap-2">
+          <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">로그인</h1>
           </div>
           <div className="grid gap-4">
@@ -46,13 +42,15 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="hidden bg-primary lg:flex items-center justify-center p-8">
-        <Image
-          src="/logo.png"
-          alt="Critical Logo"
-          width="400"
-          height="100"
-          className="object-contain"
-        />
+        <Link href="/feed">
+          <Image
+            src="/logo.png"
+            alt="Critical Logo"
+            width="400"
+            height="100"
+            className="object-contain"
+          />
+        </Link>
       </div>
     </div>
   );
