@@ -1,5 +1,5 @@
-import FeedPage from "./feed/page";
+import LoginPage from "./login/page";
 
 export default function Home() {
-  return <FeedPage />;
+  return <LoginPage />;
 }
