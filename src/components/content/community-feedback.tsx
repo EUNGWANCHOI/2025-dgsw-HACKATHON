@@ -1,4 +1,7 @@
+
 import { Check, MessageSquare, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import {
   Card,
   CardContent,
@@ -40,7 +43,9 @@ export default function CommunityFeedback({ comments }: CommunityFeedbackProps) 
                 <div className="flex justify-between">
                   <div>
                     <p className="font-semibold">{comment.author.name}</p>
-                    <p className="text-xs text-muted-foreground">{comment.createdAt}</p>
+                    <p className="text-xs text-muted-foreground">
+                        {comment.createdAt ? formatDistanceToNow(comment.createdAt.toDate(), { addSuffix: true, locale: ko }) : ''}
+                    </p>
                   </div>
                   {comment.isAccepted ? (
                       <Button variant="secondary" size="sm" className="bg-primary/10 text-primary hover:bg-primary/20 cursor-default">

@@ -10,16 +10,24 @@ import { Card, CardContent } from '@/components/ui/card';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { getUserContents } from '@/lib/data';
 import { useAuth } from '@/contexts/auth-context';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { Content } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import { storage, auth } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { updateProfile } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
+import { Camera, Loader2 } from 'lucide-react';
 
 export default function ProfilePage() {
-    const { user, loading } = useAuth();
+    const { user, loading, setUser } = useAuth();
     const router = useRouter();
+    const { toast } = useToast();
     const [userContent, setUserContent] = useState<Content[]>([]);
     const [contentLoading, setContentLoading] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (loading) return;
@@ -36,6 +44,46 @@ export default function ProfilePage() {
         }
         fetchContent();
     }, [user, loading, router]);
+    
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !auth.currentUser) return;
+
+        setIsUploading(true);
+        try {
+            const storageRef = ref(storage, `avatars/${auth.currentUser.uid}/${file.name}`);
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            await updateProfile(auth.currentUser, { 
+                photoURL: downloadURL,
+                displayName: `${auth.currentUser.displayName?.split('|')[0]}|${downloadURL}`
+             });
+            
+            if(setUser) {
+                setUser({ name: user!.name, avatarUrl: downloadURL });
+            }
+
+            toast({
+                title: '성공',
+                description: '프로필 사진이 성공적으로 변경되었습니다.',
+            });
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            toast({
+                variant: 'destructive',
+                title: '오류',
+                description: '사진 업로드에 실패했습니다.',
+            });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
 
     if (loading || !user) {
         return (
@@ -88,12 +136,23 @@ export default function ProfilePage() {
             <Card className="mb-8">
                 <CardContent className="p-6">
                     <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
-                        <Avatar className="h-24 w-24 border-4 border-primary/20">
-                            <AvatarImage src={user.avatarUrl} alt={user.name} />
-                            <AvatarFallback className="text-3xl">
-                                {user.name.split(' ').map((n) => n[0]).join('')}
-                            </AvatarFallback>
-                        </Avatar>
+                        <div className="relative group">
+                            <Avatar className="h-24 w-24 border-4 border-primary/20 cursor-pointer" onClick={handleAvatarClick}>
+                                <AvatarImage src={user.avatarUrl} alt={user.name} />
+                                <AvatarFallback className="text-3xl">
+                                    {user.name.split(' ').map((n) => n[0]).join('')}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={handleAvatarClick}>
+                                {isUploading ? (
+                                    <Loader2 className="h-8 w-8 text-white animate-spin" />
+                                ) : (
+                                    <Camera className="h-8 w-8 text-white" />
+                                )}
+                            </div>
+                            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                        </div>
+
                         <div className="flex-1">
                             <h1 className="text-3xl font-bold tracking-tight">{user.name}</h1>
                             <p className="text-muted-foreground">콘텐츠 크리에이터</p>
