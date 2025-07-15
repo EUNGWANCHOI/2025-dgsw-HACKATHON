@@ -44,13 +44,16 @@ export default function LoginPage() {
                 <Label htmlFor="password">비밀번호</Label>
               <Input id="password" type="password" placeholder="비밀번호를 입력하세요" required />
             </div>
-            <div className="flex items-center gap-4">
-                <Button type="submit" className="flex-1">
-                로그인
+            <Button type="submit" className="w-full">
+              로그인
+            </Button>
+            <div className="mt-4 text-center text-sm">
+                계정이 없으신가요?
+                <Button asChild variant="link" className="text-accent-foreground/80 hover:text-accent-foreground">
+                    <Link href="#">
+                        회원가입
+                    </Link>
                 </Button>
-                <Link href="#" className="text-sm underline">
-                    회원가입
-                </Link>
             </div>
           </div>
         </div>
