@@ -49,6 +49,8 @@ Content Title: {{{title}}}
 Content Description: {{{description}}}
 Content Category: {{{category}}}
 Content: {{{content}}}
+
+Please provide all feedback in Korean.
 `,
 });
 

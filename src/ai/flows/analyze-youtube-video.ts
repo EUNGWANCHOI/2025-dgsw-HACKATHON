@@ -67,6 +67,8 @@ Also provide an overall score between 0 and 1, where 1 is the best possible scor
 Content Title: {{{title}}}
 Content Description: {{{description}}}
 Video Transcript: {{{transcript}}}
+
+Please provide all feedback in Korean.
 `,
 });
 
