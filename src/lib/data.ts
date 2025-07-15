@@ -1,14 +1,15 @@
 
-import { db } from './firebase';
+import { db, IS_FIREBASE_CONFIGURED } from './firebase';
 import { collection, getDocs, getDoc, doc, addDoc, query, where, serverTimestamp, orderBy, limit, Timestamp, updateDoc, arrayUnion } from 'firebase/firestore';
 import type { Content, CommunityComment } from './types';
 import { MOCK_CONTENTS, MOCK_USERS } from './mock-data';
 
-const USE_MOCK_DATA = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+// Firestore 사용 가능 여부를 더 명확하게 확인 (환경 변수 + 초기화 성공)
+const USE_MOCK_DATA = !IS_FIREBASE_CONFIGURED;
 
 export async function getContents(): Promise<Content[]> {
-  if (USE_MOCK_DATA || !db.app) {
-    console.log("Using mock data for contents");
+  if (USE_MOCK_DATA) {
+    console.log("Using mock data for contents because Firebase is not configured.");
     return MOCK_CONTENTS;
   }
   try {
@@ -18,41 +19,42 @@ export async function getContents(): Promise<Content[]> {
     const contentList = contentSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content));
     return contentList;
   } catch (error) {
-    console.error("Error fetching contents, falling back to mock data:", error);
+    console.error("Error fetching contents from Firestore, falling back to mock data:", error);
     return MOCK_CONTENTS;
   }
 }
 
 export async function getContentById(id: string): Promise<Content | undefined> {
-   if (USE_MOCK_DATA || !db.app) {
-    console.log(`Using mock data for content ID: ${id}`);
-    const content = MOCK_CONTENTS.find(c => c.id === id);
-    return content;
+   if (USE_MOCK_DATA) {
+    console.log(`Using mock data for content ID: ${id} because Firebase is not configured.`);
+    return MOCK_CONTENTS.find(c => c.id === id);
   }
   try {
     const contentDocRef = doc(db, 'contents', id);
     const contentSnap = await getDoc(contentDocRef);
     if (contentSnap.exists()) {
       const contentData = { id: contentSnap.id, ...contentSnap.data() } as Content;
+      
+      // Subcollection for comments
       const feedbackCol = collection(db, `contents/${id}/communityFeedback`);
       const feedbackQuery = query(feedbackCol, orderBy('createdAt', 'desc'));
       const feedbackSnapshot = await getDocs(feedbackQuery);
       contentData.communityFeedback = feedbackSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()} as CommunityComment));
+      
       return contentData;
     } else {
-      console.warn(`Content with ID ${id} not found in Firestore. Checking mock data.`);
+      console.warn(`Content with ID ${id} not found in Firestore. Falling back to mock data.`);
       return MOCK_CONTENTS.find(c => c.id === id);
     }
   } catch (error) {
-    console.error("Error fetching content by ID, falling back to mock data: ", error);
-    console.warn(`Falling back to mock data for content ID: ${id}`);
+    console.error(`Error fetching content by ID ${id} from Firestore, falling back to mock data:`, error);
     return MOCK_CONTENTS.find(c => c.id === id);
   }
 }
 
 export async function getUserContents(userName: string): Promise<Content[]> {
-    if (USE_MOCK_DATA || !db.app) {
-        console.log(`Using mock data for user contents: ${userName}`);
+    if (USE_MOCK_DATA) {
+        console.log(`Using mock data for user contents: ${userName} because Firebase is not configured.`);
         return MOCK_CONTENTS.filter(c => c.author.name === userName);
     }
     try {
@@ -62,19 +64,19 @@ export async function getUserContents(userName: string): Promise<Content[]> {
         const contentList = contentSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content));
         return contentList;
     } catch (error) {
-        console.error("Error fetching user contents, falling back to mock data: ", error);
-        console.warn(`Falling back to mock data for user contents: ${userName}`);
+        console.error(`Error fetching user contents for ${userName} from Firestore, falling back to mock data:`, error);
         return MOCK_CONTENTS.filter(c => c.author.name === userName);
     }
 }
 
 export async function addContent(content: Omit<Content, 'id' | 'createdAt'>): Promise<string> {
-  if (USE_MOCK_DATA || !db.app) {
-    console.log("Adding mock content");
-    const newContent = {
+  if (USE_MOCK_DATA) {
+    console.log("Adding mock content because Firebase is not configured.");
+    const newContent: Content = {
         ...content,
         id: `mock-${Date.now()}`,
         createdAt: Timestamp.now(),
+        communityFeedback: content.communityFeedback || [],
     };
     MOCK_CONTENTS.unshift(newContent);
     return newContent.id;
@@ -82,19 +84,18 @@ export async function addContent(content: Omit<Content, 'id' | 'createdAt'>): Pr
   try {
     const docRef = await addDoc(collection(db, 'contents'), {
       ...content,
-      communityFeedback: [], // Start with empty array, subcollection will be used
       createdAt: serverTimestamp(),
     });
     return docRef.id;
   } catch (error) {
-    console.error("Error adding document: ", error);
+    console.error("Error adding document to Firestore: ", error);
     throw new Error("Failed to publish content to Firestore.");
   }
 }
 
 export async function addComment(contentId: string, comment: Omit<CommunityComment, 'id' | 'createdAt'>): Promise<string> {
-  if (USE_MOCK_DATA || !db.app) {
-    console.log(`Adding mock comment to content ID: ${contentId}`);
+  if (USE_MOCK_DATA) {
+    console.log(`Adding mock comment to content ID: ${contentId} because Firebase is not configured.`);
     const content = MOCK_CONTENTS.find(c => c.id === contentId);
     if (content) {
       const newComment: CommunityComment = {
@@ -112,6 +113,7 @@ export async function addComment(contentId: string, comment: Omit<CommunityComme
   }
 
   try {
+    // Note: This adds a comment to a subcollection, not the main document array.
     const feedbackCol = collection(db, `contents/${contentId}/communityFeedback`);
     const docRef = await addDoc(feedbackCol, {
       ...comment,
@@ -119,7 +121,7 @@ export async function addComment(contentId: string, comment: Omit<CommunityComme
     });
     return docRef.id;
   } catch (error) {
-    console.error("Error adding comment: ", error);
+    console.error("Error adding comment to Firestore: ", error);
     throw new Error("Failed to add comment to Firestore.");
   }
 }
