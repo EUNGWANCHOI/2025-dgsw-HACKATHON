@@ -7,32 +7,41 @@ import { MOCK_CONTENTS, MOCK_USERS } from './mock-data';
 // Firestore 사용 가능 여부를 더 명확하게 확인 (환경 변수 + 초기화 성공)
 const USE_MOCK_DATA = !IS_FIREBASE_CONFIGURED;
 
+const getMockContents = () => Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS)));
+
 export async function getContents(): Promise<Content[]> {
   if (USE_MOCK_DATA) {
-    console.log("Using mock data for contents because Firebase is not configured.");
-    return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS)));
+    console.log("Using mock data: Firebase is not configured.");
+    return getMockContents();
   }
-  try {
-    const contentsCol = collection(db, 'contents');
-    const q = query(contentsCol, orderBy('createdAt', 'desc'), limit(20));
-    const contentSnapshot = await getDocs(q);
-    const contentList = contentSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content));
-    return contentList;
-  } catch (error) {
-    console.error("Error fetching contents from Firestore, falling back to mock data:", error);
-    return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS)));
-  }
+
+  const contentsCol = collection(db, 'contents');
+  const q = query(contentsCol, orderBy('createdAt', 'desc'), limit(20));
+  
+  return getDocs(q)
+    .then(snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content)))
+    .catch(error => {
+      console.error("Error fetching contents from Firestore, falling back to mock data:", error.message);
+      return getMockContents();
+    });
 }
 
 export async function getContentById(id: string): Promise<Content | undefined> {
-   if (USE_MOCK_DATA) {
-    console.log(`Using mock data for content ID: ${id} because Firebase is not configured.`);
-    return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.find(c => c.id === id))));
+  const getMockContent = () => Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.find(c => c.id === id))));
+
+  if (USE_MOCK_DATA) {
+    console.log(`Using mock data: Firebase is not configured (content ID: ${id}).`);
+    return getMockContent();
   }
-  try {
-    const contentDocRef = doc(db, 'contents', id);
-    const contentSnap = await getDoc(contentDocRef);
-    if (contentSnap.exists()) {
+
+  const contentDocRef = doc(db, 'contents', id);
+  return getDoc(contentDocRef)
+    .then(async (contentSnap) => {
+      if (!contentSnap.exists()) {
+        console.warn(`Content with ID ${id} not found in Firestore. Falling back to mock data.`);
+        return getMockContent();
+      }
+      
       const contentData = { id: contentSnap.id, ...contentSnap.data() } as Content;
       
       const feedbackCol = collection(db, `contents/${id}/communityFeedback`);
@@ -41,31 +50,30 @@ export async function getContentById(id: string): Promise<Content | undefined> {
       contentData.communityFeedback = feedbackSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()} as CommunityComment));
       
       return contentData;
-    } else {
-      console.warn(`Content with ID ${id} not found in Firestore. Falling back to mock data.`);
-      return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.find(c => c.id === id))));
-    }
-  } catch (error) {
-    console.error(`Error fetching content by ID ${id} from Firestore, falling back to mock data:`, error);
-    return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.find(c => c.id === id))));
-  }
+    })
+    .catch(error => {
+      console.error(`Error fetching content by ID ${id} from Firestore, falling back to mock data:`, error.message);
+      return getMockContent();
+    });
 }
 
 export async function getUserContents(userName: string): Promise<Content[]> {
+    const getMockUserContents = () => Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.filter(c => c.author.name === userName))));
+    
     if (USE_MOCK_DATA) {
-        console.log(`Using mock data for user contents: ${userName} because Firebase is not configured.`);
-        return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.filter(c => c.author.name === userName))));
+        console.log(`Using mock data: Firebase is not configured (user: ${userName}).`);
+        return getMockUserContents();
     }
-    try {
-        const contentsCol = collection(db, 'contents');
-        const q = query(contentsCol, where('author.name', '==', userName), orderBy('createdAt', 'desc'));
-        const contentSnapshot = await getDocs(q);
-        const contentList = contentSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content));
-        return contentList;
-    } catch (error) {
-        console.error(`Error fetching user contents for ${userName} from Firestore, falling back to mock data:`, error);
-        return Promise.resolve(JSON.parse(JSON.stringify(MOCK_CONTENTS.filter(c => c.author.name === userName))));
-    }
+    
+    const contentsCol = collection(db, 'contents');
+    const q = query(contentsCol, where('author.name', '==', userName), orderBy('createdAt', 'desc'));
+    
+    return getDocs(q)
+        .then(snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content)))
+        .catch(error => {
+            console.error(`Error fetching user contents for ${userName} from Firestore, falling back to mock data:`, error.message);
+            return getMockUserContents();
+        });
 }
 
 export async function addContent(content: Omit<Content, 'id' | 'createdAt'>): Promise<string> {
