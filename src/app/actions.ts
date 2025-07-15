@@ -6,7 +6,7 @@ import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-im
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import type { AIFeedback, Content, User } from '@/lib/types';
 import { addContent } from '@/lib/data';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
   (url) => {
@@ -37,6 +37,9 @@ const formSchema = z.object({
 });
 
 export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise<{ success: boolean; feedback?: AIFeedback; error?: string; }> {
+  if (!process.env.GOOGLE_API_KEY) {
+    return { success: false, error: 'GOOGLE_API_KEY가 설정되지 않았습니다. AI 분석을 건너뜁니다.' };
+  }
   try {
     const validatedData = formSchema.parse(values);
 
@@ -81,6 +84,10 @@ export async function publishContent(
   aiFeedback: AIFeedback | null,
   user: User
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
+  if (!db.app) {
+      console.warn("Firestore is not initialized. Skipping publish.");
+      return { success: true, contentId: 'mock-id' };
+  }
   try {
     const validatedData = formSchema.parse(values);
     

@@ -1,9 +1,16 @@
 
 import { db } from './firebase';
-import { collection, getDocs, getDoc, doc, addDoc, query, where, serverTimestamp, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, addDoc, query, where, serverTimestamp, orderBy, limit, Timestamp } from 'firebase/firestore';
 import type { Content } from './types';
+import { MOCK_CONTENTS, MOCK_USERS } from './mock-data';
+
+const USE_MOCK_DATA = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
 export async function getContents(): Promise<Content[]> {
+  if (USE_MOCK_DATA) {
+    console.log("Using mock data for contents");
+    return MOCK_CONTENTS;
+  }
   if (!db.app) return [];
   try {
     const contentsCol = collection(db, 'contents');
@@ -18,6 +25,10 @@ export async function getContents(): Promise<Content[]> {
 }
 
 export async function getContentById(id: string): Promise<Content | undefined> {
+   if (USE_MOCK_DATA) {
+    console.log(`Using mock data for content ID: ${id}`);
+    return MOCK_CONTENTS.find(c => c.id === id);
+  }
   if (!db.app) return undefined;
   try {
     const contentDocRef = doc(db, 'contents', id);
@@ -34,6 +45,10 @@ export async function getContentById(id: string): Promise<Content | undefined> {
 }
 
 export async function getUserContents(userName: string): Promise<Content[]> {
+    if (USE_MOCK_DATA) {
+        console.log(`Using mock data for user contents: ${userName}`);
+        return MOCK_CONTENTS.filter(c => c.author.name === userName);
+    }
     if (!db.app) return [];
     try {
         const contentsCol = collection(db, 'contents');
@@ -48,6 +63,16 @@ export async function getUserContents(userName: string): Promise<Content[]> {
 }
 
 export async function addContent(content: Omit<Content, 'id' | 'createdAt'>): Promise<string> {
+  if (USE_MOCK_DATA) {
+    console.log("Adding mock content");
+    const newContent = {
+        ...content,
+        id: `mock-${Date.now()}`,
+        createdAt: Timestamp.now(),
+    };
+    MOCK_CONTENTS.unshift(newContent);
+    return newContent.id;
+  }
   if (!db.app) throw new Error("Firestore is not initialized");
   try {
     const docRef = await addDoc(collection(db, 'contents'), {

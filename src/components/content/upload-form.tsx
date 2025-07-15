@@ -87,6 +87,17 @@ export default function UploadForm() {
   async function onAnalyze(values: z.infer<typeof formSchema>) {
     setIsAnalyzing(true);
     setAiFeedback(null);
+
+    if (!process.env.NEXT_PUBLIC_GOOGLE_API_KEY && !process.env.GOOGLE_API_KEY) {
+        toast({
+            variant: 'destructive',
+            title: 'AI 분석 불가',
+            description: 'API 키가 설정되지 않았습니다. AI 피드백을 받으려면 .env 파일에 키를 추가해주세요.',
+        });
+        setIsAnalyzing(false);
+        return;
+    }
+
     try {
       const result = await getAIFeedback(values);
       
