@@ -34,6 +34,6 @@ export interface Content {
   author: User;
   thumbnailUrl: string;
   createdAt: string;
-  aiFeedback: AIFeedback;
+  aiFeedback?: AIFeedback;
   communityFeedback: CommunityComment[];
 }

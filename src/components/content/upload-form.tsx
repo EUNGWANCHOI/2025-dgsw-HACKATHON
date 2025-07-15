@@ -112,14 +112,6 @@ export default function UploadForm() {
   }
 
   async function onPublish(values: z.infer<typeof formSchema>) {
-    if (!aiFeedback) {
-      toast({
-        variant: 'destructive',
-        title: '게시 실패',
-        description: '게시하려면 먼저 AI 분석을 실행해야 합니다.',
-      });
-      return;
-    }
     setIsPublishing(true);
      try {
       const result = await publishContent(values, aiFeedback);
@@ -150,7 +142,7 @@ export default function UploadForm() {
   return (
     <Card>
       <Form {...form}>
-        <form className="space-y-8">
+        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
           <CardContent className="p-6">
               <FormField
                 control={form.control}
@@ -279,7 +271,7 @@ export default function UploadForm() {
                   </>
                 )}
               </Button>
-              <Button type="button" onClick={form.handleSubmit(onPublish)} disabled={!aiFeedback || isPublishing || isAnalyzing}>
+              <Button type="button" onClick={form.handleSubmit(onPublish)} disabled={isPublishing || isAnalyzing}>
                  {isPublishing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
