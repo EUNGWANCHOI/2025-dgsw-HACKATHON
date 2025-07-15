@@ -30,13 +30,13 @@ import { handleContentUpload } from '@/app/actions';
 import { Card, CardContent } from '@/components/ui/card';
 
 const formSchema = z.object({
-  title: z.string().min(5, 'Title must be at least 5 characters long.'),
-  description: z.string().min(10, 'Description is too short.'),
-  category: z.enum(['Video', 'Script', 'Podcast', 'Article']),
+  title: z.string().min(5, '제목은 5자 이상이어야 합니다.'),
+  description: z.string().min(10, '설명이 너무 짧습니다.'),
+  category: z.enum(['영상', '스크립트', '팟캐스트', '아티클']),
   content: z
     .string()
-    .min(50, 'Content is too short, please provide at least 50 characters.')
-    .max(5000, 'Content is too long, please provide at most 5000 characters.'),
+    .min(50, '콘텐츠가 너무 짧습니다. 최소 50자 이상 입력해주세요.')
+    .max(5000, '콘텐츠가 너무 깁니다. 최대 5000자까지 입력 가능합니다.'),
 });
 
 export default function UploadForm() {
@@ -55,31 +55,26 @@ export default function UploadForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      // Here you would typically handle file uploads to a storage bucket
-      // and then pass the URLs or content to the server action.
-      // For this demo, we'll pass the text content directly.
       const result = await handleContentUpload(values);
       
       if (result.success) {
         toast({
-          title: 'Analysis Complete!',
-          description: "We've successfully analyzed your content.",
+          title: '분석 완료!',
+          description: "콘텐츠 분석을 성공적으로 마쳤습니다.",
         });
-        // In a real app, you would redirect to the new content page:
-        // router.push(`/content/${result.contentId}`);
-        console.log('Simulated redirection to content page for:', result.contentId);
+        console.log('콘텐츠 페이지로 시뮬레이션된 리디렉션:', result.contentId);
         form.reset();
       } else {
-        throw new Error(result.error || 'An unknown error occurred.');
+        throw new Error(result.error || '알 수 없는 오류가 발생했습니다.');
       }
     } catch (error) {
-       let message = 'An unknown error occurred';
+       let message = '알 수 없는 오류가 발생했습니다.';
        if (error instanceof Error) {
          message = error.message;
        }
        toast({
         variant: 'destructive',
-        title: 'Upload Failed',
+        title: '업로드 실패',
         description: message,
       });
     } finally {
@@ -97,12 +92,12 @@ export default function UploadForm() {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Content Title</FormLabel>
+                  <FormLabel>콘텐츠 제목</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., My First Short Film" {...field} />
+                    <Input placeholder="예: 나의 첫 단편 영화" {...field} />
                   </FormControl>
                   <FormDescription>
-                    A catchy title that grabs attention.
+                    시선을 사로잡는 멋진 제목을 지어보세요.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -115,22 +110,22 @@ export default function UploadForm() {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>카테고리</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a content category" />
+                          <SelectValue placeholder="콘텐츠 카테고리 선택" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Video">Video</SelectItem>
-                        <SelectItem value="Script">Script</SelectItem>
-                        <SelectItem value="Podcast">Podcast</SelectItem>
-                        <SelectItem value="Article">Article</SelectItem>
+                        <SelectItem value="영상">영상</SelectItem>
+                        <SelectItem value="스크립트">스크립트</SelectItem>
+                        <SelectItem value="팟캐스트">팟캐스트</SelectItem>
+                        <SelectItem value="아티클">아티클</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      This helps us tailor the feedback.
+                      피드백을 맞춤화하는 데 도움이 됩니다.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -143,10 +138,10 @@ export default function UploadForm() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>설명</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Briefly describe your content and what you're looking for feedback on."
+                      placeholder="콘텐츠에 대해 간략하게 설명하고 어떤 피드백을 원하는지 알려주세요."
                       className="min-h-[100px]"
                       {...field}
                     />
@@ -161,16 +156,16 @@ export default function UploadForm() {
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Content / Script</FormLabel>
+                  <FormLabel>콘텐츠 / 스크립트</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Paste your script, article text, or video transcript here..."
+                      placeholder="이곳에 스크립트, 아티클 텍스트 또는 비디오 스크립트를 붙여넣으세요..."
                       className="min-h-[250px] font-mono text-sm"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    For videos/podcasts, please provide a transcript. (Max 5000 chars)
+                    영상/팟캐스트의 경우 스크립트를 제공해주세요. (최대 5000자)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -182,12 +177,12 @@ export default function UploadForm() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
+                    분석 중...
                   </>
                 ) : (
                   <>
                     <Wand2 className="mr-2 h-4 w-4" />
-                    Analyze Content
+                    콘텐츠 분석
                   </>
                 )}
               </Button>

@@ -1,4 +1,4 @@
-export type ContentCategory = 'Video' | 'Script' | 'Podcast' | 'Article';
+export type ContentCategory = '영상' | '스크립트' | '팟캐스트' | '아티클' | '채널 기획';
 
 export interface AIFeedback {
   deliverySuggestions: string[];

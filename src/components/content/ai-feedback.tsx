@@ -28,7 +28,7 @@ export default function AIFeedback({ feedback }: AIFeedbackProps) {
   return (
     <Card>
       <CardHeader>
-        <CardDescription>Overall Score</CardDescription>
+        <CardDescription>종합 점수</CardDescription>
         <div className="flex items-baseline gap-2">
           <CardTitle className="text-4xl font-bold tracking-tighter">
             {scorePercentage}
@@ -42,7 +42,7 @@ export default function AIFeedback({ feedback }: AIFeedbackProps) {
           <AccordionItem value="item-1">
             <AccordionTrigger className="text-base">
               <div className="flex items-center gap-2">
-                <Presentation className="h-5 w-5 text-primary" /> Delivery Suggestions
+                <Presentation className="h-5 w-5 text-primary" /> 전달력 제안
               </div>
             </AccordionTrigger>
             <AccordionContent>
@@ -56,7 +56,7 @@ export default function AIFeedback({ feedback }: AIFeedbackProps) {
           <AccordionItem value="item-2">
             <AccordionTrigger className="text-base">
               <div className="flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-primary" /> Topic Relevance
+                <Lightbulb className="h-5 w-5 text-primary" /> 주제 관련성
               </div>
             </AccordionTrigger>
             <AccordionContent className="text-sm text-muted-foreground">
@@ -66,7 +66,7 @@ export default function AIFeedback({ feedback }: AIFeedbackProps) {
           <AccordionItem value="item-3" className="border-b-0">
             <AccordionTrigger className="text-base">
               <div className="flex items-center gap-2">
-                <ThumbsUp className="h-5 w-5 text-primary" /> Audience Friendliness
+                <ThumbsUp className="h-5 w-5 text-primary" /> 시청자 친화성
               </div>
             </AccordionTrigger>
             <AccordionContent>

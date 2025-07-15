@@ -6,7 +6,7 @@ import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-im
 const formSchema = z.object({
   title: z.string(),
   description: z.string(),
-  category: z.enum(['Video', 'Script', 'Podcast', 'Article']),
+  category: z.enum(['영상', '스크립트', '팟캐스트', '아티클']),
   content: z.string(),
 });
 
@@ -37,8 +37,8 @@ export async function handleContentUpload(values: z.infer<typeof formSchema>) {
   } catch (error) {
     console.error('Error handling content upload:', error);
     if (error instanceof z.ZodError) {
-      return { success: false, error: 'Invalid data provided.' };
+      return { success: false, error: '잘못된 데이터가 제공되었습니다.' };
     }
-    return { success: false, error: 'Failed to analyze content due to a server error.' };
+    return { success: false, error: '서버 오류로 인해 콘텐츠 분석에 실패했습니다.' };
   }
 }

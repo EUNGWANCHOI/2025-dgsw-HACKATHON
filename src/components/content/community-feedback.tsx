@@ -19,9 +19,9 @@ export default function CommunityFeedback({ comments }: CommunityFeedbackProps) 
     return (
       <Card className="flex flex-col items-center justify-center p-8 text-center">
         <MessageSquare className="h-12 w-12 text-muted-foreground/50" />
-        <CardTitle className="mt-4 text-lg">No Community Feedback Yet</CardTitle>
+        <CardTitle className="mt-4 text-lg">아직 커뮤니티 피드백이 없습니다</CardTitle>
         <CardDescription className="mt-1">
-          Share your content to get feedback from others.
+          콘텐츠를 공유하여 다른 사람들로부터 피드백을 받아보세요.
         </CardDescription>
       </Card>
     );
@@ -45,12 +45,12 @@ export default function CommunityFeedback({ comments }: CommunityFeedbackProps) 
                   {comment.isAccepted ? (
                       <Button variant="secondary" size="sm" className="bg-primary/10 text-primary hover:bg-primary/20 cursor-default">
                         <Check className="mr-2 h-4 w-4" />
-                        Accepted
+                        수락됨
                       </Button>
                     ) : (
                       <Button variant="outline" size="sm">
                         <Check className="mr-2 h-4 w-4" />
-                        Accept
+                        수락
                       </Button>
                   )}
                 </div>
