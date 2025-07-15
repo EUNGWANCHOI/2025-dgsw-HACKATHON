@@ -1,3 +1,6 @@
+
+'use client';
+
 import AppSidebar from '@/components/common/app-sidebar';
 import Header from '@/components/common/header';
 import ContentCard from '@/components/content/content-card';
@@ -5,11 +8,75 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SidebarInset } from '@/components/ui/sidebar';
-import { getCurrentUser, getUserContents } from '@/lib/data';
+import { getUserContents } from '@/lib/data';
+import { useAuth } from '@/contexts/auth-context';
+import { useEffect, useState } from 'react';
+import type { Content } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
 
-export default async function ProfilePage() {
-    const user = await getCurrentUser();
-    const userContent = await getUserContents(user.name);
+export default function ProfilePage() {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+    const [userContent, setUserContent] = useState<Content[]>([]);
+    const [contentLoading, setContentLoading] = useState(true);
+
+    useEffect(() => {
+        if (loading) return;
+        if (!user) {
+            router.push('/login');
+            return;
+        }
+
+        const fetchContent = async () => {
+            setContentLoading(true);
+            const content = await getUserContents(user.name);
+            setUserContent(content);
+            setContentLoading(false);
+        }
+        fetchContent();
+    }, [user, loading, router]);
+
+    if (loading || !user) {
+        return (
+            <div className="flex min-h-screen">
+                <AppSidebar />
+                <div className="flex-1">
+                    <SidebarInset>
+                    <Header title="프로필" />
+                    <main className="p-4 sm:p-6 lg:p-8">
+                        <Card className="mb-8">
+                            <CardContent className="p-6">
+                                <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+                                    <Skeleton className="h-24 w-24 rounded-full" />
+                                    <div className="flex-1 space-y-2">
+                                        <Skeleton className="h-8 w-32" />
+                                        <Skeleton className="h-4 w-24" />
+                                        <Skeleton className="h-10 w-full max-w-prose" />
+                                    </div>
+                                    <Skeleton className="h-10 w-24" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Skeleton className="h-8 w-48 mb-6" />
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            {[...Array(4)].map((_, i) => (
+                                <Card key={i}>
+                                    <Skeleton className="aspect-video w-full" />
+                                    <CardContent className="p-4 space-y-2">
+                                        <Skeleton className="h-4 w-1/4" />
+                                        <Skeleton className="h-6 w-3/4" />
+                                        <Skeleton className="h-10 w-full" />
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    </main>
+                    </SidebarInset>
+                </div>
+            </div>
+        )
+    }
 
   return (
     <div className="flex min-h-screen">
@@ -41,7 +108,20 @@ export default async function ProfilePage() {
             
             <div className="space-y-6">
                 <h2 className="text-2xl font-bold tracking-tight">내 콘텐츠</h2>
-                {userContent.length > 0 ? (
+                {contentLoading ? (
+                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {[...Array(4)].map((_, i) => (
+                            <Card key={i}>
+                                <Skeleton className="aspect-video w-full" />
+                                <CardContent className="p-4 space-y-2">
+                                    <Skeleton className="h-4 w-1/4" />
+                                    <Skeleton className="h-6 w-3/4" />
+                                    <Skeleton className="h-10 w-full" />
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                ) : userContent.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {userContent.map((content) => (
                         <ContentCard key={content.id} content={content} />

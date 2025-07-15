@@ -1,9 +1,11 @@
+
 import type { Metadata } from 'next';
 import { Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/contexts/auth-context';
 
 const noto_sans_kr = Noto_Sans_KR({
   subsets: ['latin'],
@@ -29,10 +31,12 @@ export default function RootLayout({
           noto_sans_kr.variable
         )}
       >
-        <SidebarProvider>
-          {children}
-        </SidebarProvider>
-        <Toaster />
+        <AuthProvider>
+            <SidebarProvider>
+            {children}
+            </SidebarProvider>
+            <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
