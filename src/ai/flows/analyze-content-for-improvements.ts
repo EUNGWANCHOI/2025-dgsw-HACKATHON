@@ -35,7 +35,6 @@ const prompt = ai.definePrompt({
   name: 'analyzeContentPrompt',
   input: {schema: AnalyzeContentInputSchema},
   output: {schema: AnalyzeContentOutputSchema},
-  model: 'openai/gpt-4-turbo',
   prompt: `You are an AI content analysis tool designed to provide feedback to content creators.
 
 You will analyze the content provided based on the following criteria:
