@@ -257,7 +257,7 @@ export default function UploadForm() {
                 />
               )}
           </CardContent>
-          <CardFooter className="flex justify-end gap-2 p-6 pt-0">
+          <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end items-center gap-2 p-6 pt-0">
               <Button type="button" variant="outline" onClick={form.handleSubmit(onAnalyze)} disabled={isAnalyzing || isPublishing}>
                 {isAnalyzing ? (
                   <>

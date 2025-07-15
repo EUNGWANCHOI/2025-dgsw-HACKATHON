@@ -89,7 +89,7 @@ export async function publishContent(
       title: validatedData.title,
       description: validatedData.description,
       category: validatedData.category,
-      content: validatedData.content || `YouTube 영상: ${validatedData.youtubeUrl}`,
+      content: validatedData.category === '영상' ? `YouTube 영상: ${validatedData.youtubeUrl}` : validatedData.content ?? '',
       author: user,
       thumbnailUrl: 'https://placehold.co/600x400.png',
       createdAt: '방금 전',
