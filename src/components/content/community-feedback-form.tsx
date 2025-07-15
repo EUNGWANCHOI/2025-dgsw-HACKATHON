@@ -73,7 +73,12 @@ export default function CommunityFeedbackForm({ contentId, comments }: Community
           </div>
         ) : (
           <div className="space-y-4">
-            {comments.map((comment) => (
+            {comments.map((comment) => {
+              const createdAtDate = comment.createdAt && typeof comment.createdAt.toDate === 'function' 
+                ? comment.createdAt.toDate()
+                : comment.createdAt ? new Date(comment.createdAt as any) : null;
+              
+              return (
               <div key={comment.id} className="flex gap-3">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={comment.author.avatarUrl} />
@@ -84,7 +89,7 @@ export default function CommunityFeedbackForm({ contentId, comments }: Community
                     <div>
                       <p className="font-semibold">{comment.author.name}</p>
                       <p className="text-xs text-muted-foreground">
-                          {comment.createdAt ? formatDistanceToNow(comment.createdAt.toDate(), { addSuffix: true, locale: ko }) : ''}
+                          {createdAtDate ? formatDistanceToNow(createdAtDate, { addSuffix: true, locale: ko }) : ''}
                       </p>
                     </div>
                     {comment.isAccepted ? (
@@ -110,7 +115,7 @@ export default function CommunityFeedbackForm({ contentId, comments }: Community
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </CardContent>

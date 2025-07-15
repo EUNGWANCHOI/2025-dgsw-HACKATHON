@@ -30,7 +30,9 @@ const categoryIcons = {
 
 export default function ContentCard({ content }: ContentCardProps) {
     const totalLikes = content.communityFeedback?.reduce((acc, curr) => acc + curr.likes, 0) || 0;
-    const createdAtDate = content.createdAt?.toDate();
+    const createdAtDate = content.createdAt && typeof content.createdAt.toDate === 'function' 
+        ? content.createdAt.toDate()
+        : content.createdAt ? new Date(content.createdAt as any) : null;
 
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">

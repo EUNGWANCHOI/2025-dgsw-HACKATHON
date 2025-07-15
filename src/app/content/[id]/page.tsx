@@ -38,7 +38,9 @@ export default async function ContentPage({ params }: { params: { id: string } }
     notFound();
   }
   
-  const createdAtDate = content.createdAt?.toDate();
+  const createdAtDate = content.createdAt && typeof content.createdAt.toDate === 'function' 
+        ? content.createdAt.toDate()
+        : content.createdAt ? new Date(content.createdAt as any) : null;
 
   return (
     <div className="bg-muted/30">
