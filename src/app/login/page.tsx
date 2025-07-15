@@ -1,63 +1,59 @@
-
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-muted/30 p-4">
-      <Card className="mx-auto w-full max-w-sm">
-        <CardHeader className="text-center">
-            <Image 
-                src="/logo.png" 
-                width={80} 
-                height={80} 
-                alt="크리티컬 로고" 
-                className="mx-auto mb-4 rounded-lg"
-                data-ai-hint="logo design"
-            />
-          <CardTitle className="text-2xl font-bold tracking-tight">로그인</CardTitle>
-          <CardDescription>계정에 로그인하여 콘텐츠 피드백을 받아보세요.</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
+      <div className="flex items-center justify-center py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+            <Link href="/" className="mb-4 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+                <ArrowLeft className="h-4 w-4" />
+                홈으로 돌아가기
+            </Link>
+          <div className="grid gap-2">
+            <h1 className="text-3xl font-bold">로그인</h1>
+          </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">이메일</Label>
+              <Label htmlFor="id">아이디</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
+                id="id"
+                type="text"
+                placeholder="아이디를 입력하세요"
                 required
               />
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">비밀번호</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm underline"
-                >
-                  비밀번호를 잊으셨나요?
-                </Link>
               </div>
-              <Input id="password" type="password" required />
+              <Input id="password" type="password" placeholder="비밀번호를 입력하세요" required />
             </div>
             <Button type="submit" className="w-full">
               로그인
             </Button>
+            <div className="mt-4 text-center text-sm">
+                계정이 없으신가요?{' '}
+                <Link href="#" className="underline">
+                    회원가입
+                </Link>
+            </div>
           </div>
-          <div className="mt-4 text-center text-sm">
-            계정이 없으신가요?{' '}
-            <Link href="#" className="underline">
-              가입하기
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+      <div className="hidden bg-primary lg:flex items-center justify-center p-8">
+        <Image
+          src="/logo.svg"
+          alt="Critical Logo"
+          width="400"
+          height="100"
+          className="object-contain"
+        />
+      </div>
     </div>
   );
 }

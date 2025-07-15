@@ -22,13 +22,14 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '../ui/button';
+import Image from 'next/image';
 
 export default function AppSidebar() {
   const pathname = usePathname();
 
   const menuItems = [
     {
-      href: '/',
+      href: '/feed',
       label: '피드',
       icon: Rss,
     },
@@ -53,9 +54,9 @@ export default function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="shrink-0 text-primary hover:bg-primary/10">
-            <BotMessageSquare className="size-6" />
-          </Button>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg">
+                <Image src="/logo-icon.svg" alt="Critical" width={28} height={28} />
+            </div>
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold tracking-tighter">
               크리티컬
@@ -74,7 +75,7 @@ export default function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <Button
                 asChild
-                variant={pathname === item.href ? 'secondary' : 'ghost'}
+                variant={pathname.startsWith(item.href) ? 'secondary' : 'ghost'}
                 className="w-full justify-start gap-2"
               >
                 <Link href={item.href}>
