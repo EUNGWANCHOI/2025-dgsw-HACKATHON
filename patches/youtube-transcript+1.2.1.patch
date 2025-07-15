@@ -1,0 +1,44 @@
+diff --git a/node_modules/youtube-transcript/dist/index.js b/node_modules/youtube-transcript/dist/index.js
+index 45a9861..064619a 100644
+--- a/node_modules/youtube-transcript/dist/index.js
++++ b/node_modules/youtube-transcript/dist/index.js
+@@ -107,7 +107,7 @@
+      * @param {string} videoId
+      * @param {string} lang
+      */
+-    static async #getTranscript(videoId, lang = 'en') {
++    static async getTranscript(videoId, lang = 'en') {
+         try {
+             const response = await (0, node_fetch_1.default)(`https://www.youtube.com/watch?v=${videoId}`, {
+                 headers: {
+@@ -145,7 +145,7 @@
+      * @param {string} lang
+      */
+     static async fetchTranscript(videoIdOrUrl, config = {}) {
+-        const videoId = this.getVideoId(videoIdOrUrl);
++        const videoId = YoutubeTranscript.getVideoId(videoIdOrUrl);
+         const transcripts = await this.getTranscript(videoId, config.lang);
+         if (!transcripts) {
+             throw new YoutubeTranscriptError_1.YoutubeTranscriptError(`Could not retrieve transcript for video ${videoIdOrUrl}.`);
+diff --git a/node_modules/youtube-transcript/dist/index.mjs b/node_modules/youtube-transcript/dist/index.mjs
+index 8e45a70..280a8f8 100644
+--- a/node_modules/youtube-transcript/dist/index.mjs
++++ b/node_modules/youtube-transcript/dist/index.mjs
+@@ -103,7 +103,7 @@
+   /**
+    * @param {string} videoId
+    */
+-  static #getTranscript = async (videoId, lang = "en") => {
++  static getTranscript = async (videoId, lang = "en") => {
+     try {
+       const response = await fetch(
+         `https://www.youtube.com/watch?v=${videoId}`,
+@@ -142,7 +142,7 @@
+    * @param {string} lang
+    */
+   static fetchTranscript = async (videoIdOrUrl, config = {}) => {
+-    const videoId = this.getVideoId(videoIdOrUrl);
++    const videoId = YoutubeTranscript.getVideoId(videoIdOrUrl);
+     const transcripts = await this.getTranscript(videoId, config.lang);
+     if (!transcripts) {
+       throw new YoutubeTranscriptError(
