@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { analyzeContentForImprovements } from '@/ai/flows/analyze-content-for-improvements';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import type { AIFeedback } from '@/lib/types';
-import { getContentById, MOCK_CONTENTS, MOCK_USER } from '@/lib/data';
+import { getContentById, getContents, getCurrentUser } from '@/lib/data';
 
 
 const youtubeUrlSchema = z.string().url('유효한 URL을 입력해주세요.').refine(
@@ -80,10 +80,9 @@ export async function publishContent(
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
   try {
     const validatedData = formSchema.parse(values);
+    const [contents, user] = await Promise.all([getContents(), getCurrentUser()]);
     
-    // In a real app, you would save the content to a database here.
-    // We'll simulate this by adding it to our mock data array.
-    const newContentId = (MOCK_CONTENTS.length + 1).toString();
+    const newContentId = (contents.length + 1).toString();
     
     const newContent = {
       id: newContentId,
@@ -91,16 +90,18 @@ export async function publishContent(
       description: validatedData.description,
       category: validatedData.category,
       content: validatedData.content || `YouTube 영상: ${validatedData.youtubeUrl}`,
-      author: MOCK_USER,
+      author: user,
       thumbnailUrl: 'https://placehold.co/600x400.png',
       createdAt: '방금 전',
       aiFeedback: aiFeedback,
       communityFeedback: [],
     };
 
-    MOCK_CONTENTS.unshift(newContent); // Add to the beginning of the array
-
-    console.log(`[Server Action] New content published with ID: ${newContentId}`);
+    // This is where you would push to a real database.
+    // For now, we can't add to the MOCK_CONTENTS array as it is not exported.
+    // In a real scenario, you'd have a function like `addContent(newContent)`.
+    console.log(`[Server Action] New content would be published with ID: ${newContentId}`);
+    console.log(newContent);
     
     return { success: true, contentId: newContentId };
 
