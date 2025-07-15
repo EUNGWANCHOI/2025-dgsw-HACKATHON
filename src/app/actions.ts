@@ -82,7 +82,7 @@ export async function publishContent(
     const validatedData = formSchema.parse(values);
     const [contents, user] = await Promise.all([getContents(), getCurrentUser()]);
     
-    const newContentId = (contents.length + 1).toString();
+    const newContentId = (Math.max(...contents.map(c => parseInt(c.id, 10)), 0) + 1).toString();
     
     const newContent: Content = {
       id: newContentId,
