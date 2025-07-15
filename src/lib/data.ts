@@ -1,12 +1,13 @@
-import type { Content } from './types';
+import type { Content, User } from './types';
 
-export const mockUser = {
+// This is a mock database. In a real application, you would connect to a real database.
+const MOCK_USER: User = {
   name: '김현준',
   avatarUrl: 'https://i.pravatar.cc/150?u=hyunjun',
 };
 
-export const mockContents: Content[] = [
-  {
+const MOCK_CONTENTS: Content[] = [
+    {
     id: '1',
     title: '제 첫 유튜브 영상 스크립트입니다',
     description: 'IT 기술을 쉽게 설명하는 영상의 스크립트 초안입니다. 흐름이나 어려운 용어가 있는지 피드백 부탁드립니다.',
@@ -89,3 +90,34 @@ export const mockContents: Content[] = [
     ],
   },
 ];
+
+
+// Simulate a database query
+export async function getContents(): Promise<Content[]> {
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  return MOCK_CONTENTS;
+}
+
+export async function getContentById(id: string): Promise<Content | undefined> {
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  return MOCK_CONTENTS.find(c => c.id === id);
+}
+
+export async function getUser(name: string): Promise<User | undefined> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    if (name === MOCK_USER.name) {
+        return MOCK_USER;
+    }
+    const author = MOCK_CONTENTS.find(c => c.author.name === name)?.author;
+    return author;
+}
+
+export async function getCurrentUser(): Promise<User> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return MOCK_USER;
+}
+
+export async function getUserContents(userName: string): Promise<Content[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return MOCK_CONTENTS.filter(c => c.author.name === userName);
+}

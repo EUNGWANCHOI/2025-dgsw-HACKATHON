@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -10,34 +11,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { mockContents } from "@/lib/mock-data";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import type { Content } from "@/lib/types";
 
-const data = [
-  {
-    name: "영상",
-    total: mockContents.filter(c => c.category === '영상').length,
-  },
-  {
-    name: "스크립트",
-    total: mockContents.filter(c => c.category === '스크립트').length,
-  },
-  {
-    name: "팟캐스트",
-    total: mockContents.filter(c => c.category === '팟캐스트').length,
-  },
-  {
-    name: "아티클",
-    total: mockContents.filter(c => c.category === '아티클').length,
-  },
-    {
-    name: "채널 기획",
-    total: mockContents.filter(c => c.category === '채널 기획').length,
-  },
-]
+interface ContentTypeChartProps {
+    contents: Content[];
+}
 
-export function ContentTypeChart() {
-    if (mockContents.length === 0) {
+export function ContentTypeChart({ contents }: ContentTypeChartProps) {
+    const data = React.useMemo(() => {
+        return [
+          {
+            name: "영상",
+            total: contents.filter(c => c.category === '영상').length,
+          },
+          {
+            name: "스크립트",
+            total: contents.filter(c => c.category === '스크립트').length,
+          },
+          {
+            name: "팟캐스트",
+            total: contents.filter(c => c.category === '팟캐스트').length,
+          },
+          {
+            name: "아티클",
+            total: contents.filter(c => c.category === '아티클').length,
+          },
+            {
+            name: "채널 기획",
+            total: contents.filter(c => c.category === '채널 기획').length,
+          },
+        ]
+    }, [contents]);
+
+
+    if (contents.length === 0) {
         return (
              <div className="flex h-[250px] items-center justify-center text-muted-foreground">
               표시할 데이터가 없습니다.

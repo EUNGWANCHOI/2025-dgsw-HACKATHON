@@ -11,9 +11,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockUser } from '@/lib/mock-data';
+import { getCurrentUser } from '@/lib/data';
 
-export default function Header({ title }: { title: string }) {
+export default async function Header({ title }: { title: string }) {
+  const user = await getCurrentUser();
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
       <div className="flex items-center gap-2">
@@ -41,9 +42,9 @@ export default function Header({ title }: { title: string }) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} />
+              <AvatarImage src={user.avatarUrl} alt={user.name} />
               <AvatarFallback>
-                {mockUser.name
+                {user.name
                   .split(' ')
                   .map((n) => n[0])
                   .join('')}
