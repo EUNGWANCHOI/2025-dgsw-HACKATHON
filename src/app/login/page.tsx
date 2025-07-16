@@ -10,8 +10,9 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, IS_FIREBASE_CONFIGURED } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -19,10 +20,24 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { setUser } = useAuth();
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (!IS_FIREBASE_CONFIGURED) {
+        console.warn("Firebase is not configured. Logging in with mock user.");
+        if(setUser) {
+            setUser({ name: '게스트 사용자', avatarUrl: 'https://i.pravatar.cc/150?u=guest' });
+        }
+        toast({ title: '로그인 성공 (예시 모드)', description: '피드 페이지로 이동합니다.' });
+        router.push('/feed');
+        setIsLoading(false);
+        return;
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({ title: '로그인 성공', description: '피드 페이지로 이동합니다.' });
