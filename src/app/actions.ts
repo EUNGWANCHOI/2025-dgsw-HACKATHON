@@ -42,7 +42,7 @@ export async function getAIFeedback(values: z.infer<typeof formSchema>): Promise
   // GOOGLE_API_KEY 또는 OPENAI_API_KEY 둘 다 없으면 에러 반환
   if (!process.env.GOOGLE_API_KEY && !process.env.OPENAI_API_KEY) {
     const errorMessage = 'AI API 키가 설정되지 않았습니다. .env 파일에 GOOGLE_API_KEY를 추가해주세요.';
-    console.error(errorMessage);
+    console.warn(errorMessage);
     return { success: false, error: errorMessage };
   }
   
@@ -91,62 +91,43 @@ export async function publishContent(
   aiFeedback: AIFeedback | null,
   user: User
 ): Promise<{ success: boolean, contentId?: string; error?: string; }> {
-  if (!IS_FIREBASE_CONFIGURED) {
-    try {
-        const validatedData = formSchema.parse(values);
-        const newContentData: Omit<Content, 'id' | 'createdAt'> = {
-            title: validatedData.title,
-            description: validatedData.description,
-            category: validatedData.category,
-            content: validatedData.category === '영상' ? `YouTube 영상: ${validatedData.youtubeUrl}` : (validatedData.content ?? ''),
-            author: user,
-            thumbnailUrl: validatedData.thumbnailUrl || 'https://placehold.co/600x400.png',
-            aiFeedback: aiFeedback || undefined,
-            communityFeedback: [],
-        };
-        const newContentId = await addContent(newContentData);
-        revalidatePath('/feed');
-        revalidatePath('/dashboard');
-        revalidatePath(`/content/${newContentId}`);
-        return { success: true, contentId: newContentId };
-    } catch (error) {
-        console.error("Error publishing mock content:", error);
-        if (error instanceof z.ZodError) {
-          return { success: false, error: '잘못된 데이터가 제공되었습니다.' };
-        }
-        return { success: false, error: "예시 데이터 모드에서 콘텐츠 게시에 실패했습니다." };
-    }
-  }
-
-  // Firebase 설정이 있을 때의 원래 로직
   try {
-    const validatedData = formSchema.parse(values);
-    
-    const newContentData: Omit<Content, 'id' | 'createdAt'> = {
-        title: validatedData.title,
-        description: validatedData.description,
-        category: validatedData.category,
-        content: validatedData.category === '영상' ? `YouTube 영상: ${validatedData.youtubeUrl}` : (validatedData.content ?? ''),
-        author: user,
-        thumbnailUrl: validatedData.thumbnailUrl || 'https://placehold.co/600x400.png',
-        aiFeedback: aiFeedback || undefined,
-        communityFeedback: [],
-    };
-    
-    const newContentId = await addContent(newContentData);
-    
-    revalidatePath('/feed');
-    revalidatePath('/dashboard');
-    revalidatePath(`/content/${newContentId}`);
+      const validatedData = formSchema.parse(values);
+      const newContentData: Omit<Content, 'id' | 'createdAt'> = {
+          title: validatedData.title,
+          description: validatedData.description,
+          category: validatedData.category,
+          content: validatedData.category === '영상' ? `YouTube 영상: ${validatedData.youtubeUrl}` : (validatedData.content ?? ''),
+          author: user,
+          thumbnailUrl: validatedData.thumbnailUrl || 'https://placehold.co/600x400.png',
+          aiFeedback: aiFeedback || undefined,
+          communityFeedback: [],
+      };
 
-    return { success: true, contentId: newContentId };
+      if (!IS_FIREBASE_CONFIGURED) {
+          console.warn("Using mock data mode for publishing content.");
+          const newContentId = await addContent(newContentData);
+          revalidatePath('/feed');
+          revalidatePath('/dashboard');
+          revalidatePath(`/content/${newContentId}`);
+          return { success: true, contentId: newContentId };
+      }
+      
+      // Firebase 설정이 있을 때의 원래 로직
+      const newContentId = await addContent(newContentData);
+      
+      revalidatePath('/feed');
+      revalidatePath('/dashboard');
+      revalidatePath(`/content/${newContentId}`);
+
+      return { success: true, contentId: newContentId };
 
   } catch (error) {
-    console.error('Error publishing content:', error);
-    if (error instanceof z.ZodError) {
-      return { success: false, error: '잘못된 데이터가 제공되었습니다.' };
-    }
-    return { success: false, error: '서버 오류로 인해 콘텐츠 게시에 실패했습니다.' };
+      console.error('Error publishing content:', error);
+      if (error instanceof z.ZodError) {
+        return { success: false, error: '잘못된 데이터가 제공되었습니다.' };
+      }
+      return { success: false, error: '서버 오류로 인해 콘텐츠 게시에 실패했습니다.' };
   }
 }
 
