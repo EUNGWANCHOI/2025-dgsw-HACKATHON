@@ -1,53 +1,57 @@
+"use client";
 
-'use client';
-
-import Image from 'next/image';
-import Link from 'next/link';
-import { ArrowLeft, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, IS_FIREBASE_CONFIGURED } from '@/lib/firebase';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/auth-context';
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, IS_FIREBASE_CONFIGURED } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const { setUser } = useAuth();
-
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     if (!IS_FIREBASE_CONFIGURED) {
-        console.warn("Firebase is not configured. Logging in with mock user.");
-        if(setUser) {
-            setUser({ name: '게스트 사용자', avatarUrl: 'https://i.pravatar.cc/150?u=guest' });
-        }
-        toast({ title: '로그인 성공 (예시 모드)', description: '피드 페이지로 이동합니다.' });
-        router.push('/feed');
-        setIsLoading(false);
-        return;
+      console.warn("Firebase is not configured. Logging in with mock user.");
+      if (setUser) {
+        setUser({
+          name: "게스트 사용자",
+          avatarUrl: "https://i.pravatar.cc/150?u=guest",
+        });
+      }
+      toast({
+        title: "로그인 성공 (예시 모드)",
+        description: "피드 페이지로 이동합니다.",
+      });
+      router.push("/feed");
+      setIsLoading(false);
+      return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast({ title: '로그인 성공', description: '피드 페이지로 이동합니다.' });
-      router.push('/feed');
+      toast({ title: "로그인 성공", description: "피드 페이지로 이동합니다." });
+      router.push("/feed");
     } catch (error: any) {
       console.error(error);
       toast({
-        variant: 'destructive',
-        title: '로그인 실패',
-        description: '이메일 또는 비밀번호를 확인해주세요.',
+        variant: "destructive",
+        title: "로그인 실패",
+        description: "이메일 또는 비밀번호를 확인해주세요.",
       });
     } finally {
       setIsLoading(false);
@@ -69,7 +73,12 @@ export default function LoginPage() {
       </div>
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
-          <Button variant="ghost" size="icon" asChild className="justify-self-start">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="justify-self-start"
+          >
             <Link href="/feed">
               <ArrowLeft className="h-4 w-4" />
               <span className="sr-only">피드로 돌아가기</span>
@@ -108,7 +117,11 @@ export default function LoginPage() {
           </form>
           <div className="mt-4 text-center text-sm">
             계정이 없으신가요?
-            <Button asChild variant="link" className="text-primary hover:text-primary/90">
+            <Button
+              asChild
+              variant="link"
+              className="text-primary hover:text-primary/90"
+            >
               <Link href="/register">회원가입</Link>
             </Button>
           </div>
